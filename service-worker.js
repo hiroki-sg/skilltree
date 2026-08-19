@@ -1,4 +1,4 @@
-const CACHE = "skilltree-v6-4";
+const CACHE = "skilltree-v6-5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -23,6 +23,22 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+
+  // Navigations prefer the latest online version, with cached app as offline fallback.
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put("./index.html", copy));
+          return response;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // Static assets: cached first, then network.
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
@@ -30,7 +46,7 @@ self.addEventListener("fetch", event => {
         const copy = response.clone();
         caches.open(CACHE).then(cache => cache.put(event.request, copy));
         return response;
-      }).catch(() => caches.match("./index.html"));
+      });
     })
   );
 });

@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
-<title>SkillTree v6.4</title>
+<title>SkillTree v6.5</title>
 <style>
 :root{
   --stone:#b9b3a8;--stoneD:#666057;--panel:#1c2127;--panel2:#11161b;--txt:#f4f4f4;
@@ -30,7 +30,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .crumbRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
 .crumb{border:1px solid #6d747c;background:#30363d;padding:3px 7px;font-size:12px;cursor:pointer}.crumb.current{color:#f2d76f;border-color:#9a8745}
 .tabRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.tab{border:2px solid #626970;background:#363c43;color:#fff;padding:6px 9px;font-weight:800}.tab.on{background:#eee0a7;color:#111}
+#tabs{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.tab{border:2px solid #626970;background:#363c43;color:#fff;padding:6px 9px;font-weight:800;white-space:nowrap}.tab.on{background:#eee0a7;color:#111}
 .zoomControls{display:flex;gap:4px;align-items:center;margin-left:auto}.zoomLabel{min-width:52px;text-align:center;font-weight:900;font-size:12px}.zoomHelp{font-size:11px;color:#bfc4ca}
 .viewport{overflow:auto;min-height:calc(100vh - 140px);position:relative}
 .zoomStage{position:relative;margin:0 auto;min-width:1px;min-height:1px}
@@ -123,7 +124,7 @@ svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflo
 }
 #desktopModeRadio:checked ~ .app #desktopModeBtn::before,
 #mobileModeRadio:checked ~ .app #mobileModeBtn::before{content:"✓ "}
-.mobileEditorFab,.mobileEditorHeader{display:none}
+.mobileEditorFab,.mobileEditorHeader,.mobileLayoutToggle{display:none}
 
 body.desktopMode .app,
 #desktopModeRadio:checked ~ .app{grid-template-columns:minmax(0,1fr) 390px}
@@ -144,14 +145,27 @@ body.mobileMode .top,#mobileModeRadio:checked ~ .app .top{
 body.mobileMode .top .title,#mobileModeRadio:checked ~ .app .top .title{font-size:14px;white-space:nowrap}
 body.mobileMode .top .grow,#mobileModeRadio:checked ~ .app .top .grow{display:none}
 body.mobileMode .top > .btn,body.mobileMode .top > label.btn,#mobileModeRadio:checked ~ .app .top > .btn,#mobileModeRadio:checked ~ .app .top > label.btn{white-space:nowrap;flex:0 0 auto}
-body.mobileMode .toolbar,#mobileModeRadio:checked ~ .app .toolbar{top:54px;padding:6px 7px}
-body.mobileMode .crumbRow,#mobileModeRadio:checked ~ .app .crumbRow{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}
-body.mobileMode .tabRow,#mobileModeRadio:checked ~ .app .tabRow{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}
+body.mobileMode .toolbar,#mobileModeRadio:checked ~ .app .toolbar{top:54px;padding:4px 6px}
+body.mobileMode .crumbRow,#mobileModeRadio:checked ~ .app .crumbRow{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;margin-bottom:3px;min-height:0}
+body.mobileMode .crumb,#mobileModeRadio:checked ~ .app .crumb{padding:2px 6px;font-size:11px}
+body.mobileMode .tabRow,#mobileModeRadio:checked ~ .app .tabRow{
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:4px;padding:0 0 2px;white-space:nowrap;-webkit-overflow-scrolling:touch
+}
+body.mobileMode #tabs,#mobileModeRadio:checked ~ .app #tabs{display:flex;gap:3px;align-items:center;flex-wrap:nowrap;flex:0 0 auto}
+body.mobileMode .tab,#mobileModeRadio:checked ~ .app .tab{font-size:11px;padding:3px 6px;border-width:1px;flex:0 0 auto}
+body.mobileMode .tabRow>.muted:first-child,#mobileModeRadio:checked ~ .app .tabRow>.muted:first-child{display:none}
+body.mobileMode #count,#mobileModeRadio:checked ~ .app #count{display:none}
 body.mobileMode .zoomHelp,#mobileModeRadio:checked ~ .app .zoomHelp{display:none}
-body.mobileMode .zoomControls,#mobileModeRadio:checked ~ .app .zoomControls{margin-left:4px;flex:0 0 auto}
+body.mobileMode .zoomControls,#mobileModeRadio:checked ~ .app .zoomControls{margin-left:4px;flex:0 0 auto;gap:2px}
+body.mobileMode .zoomControls .btn,#mobileModeRadio:checked ~ .app .zoomControls .btn{padding:3px 5px;font-size:11px;border-width:1px}
+body.mobileMode .zoomLabel,#mobileModeRadio:checked ~ .app .zoomLabel{min-width:38px;font-size:11px}
+body.mobileMode .mobileLayoutToggle,#mobileModeRadio:checked ~ .app .mobileLayoutToggle{display:inline-block;flex:0 0 auto;padding:3px 6px;font-size:11px;border-width:1px}
+body.mobileMode.mobileLayoutEdit .mobileLayoutToggle,body.mobileLayoutEdit #mobileModeRadio:checked ~ .app .mobileLayoutToggle{background:#f0e2a8;color:#111;border-color:#d8b94a}
+body.mobileMode:not(.mobileLayoutEdit) .node,#mobileModeRadio:checked ~ .app .node{touch-action:pan-x pan-y;cursor:pointer}
+body.mobileMode.mobileLayoutEdit .node,body.mobileLayoutEdit #mobileModeRadio:checked ~ .app .node{touch-action:none;cursor:grab}
 body.mobileMode .viewport,#mobileModeRadio:checked ~ .app .viewport{
-  min-height:calc(100vh - 116px);
-  height:calc(100vh - 116px);
+  min-height:calc(100vh - 94px);
+  height:calc(100vh - 94px);
   overscroll-behavior:contain;
 }
 body.mobileMode .right,#mobileModeRadio:checked ~ .app .right{
@@ -225,7 +239,7 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
 <input class="uiModeRadio" type="radio" name="uiModeNative" id="mobileModeRadio" value="mobile">
 <div class="app">
 <header class="top">
-  <div class="title">SkillTree v6.4</div>
+  <div class="title">SkillTree v6.5</div>
   <div class="modeSwitch">
     <label class="btn sm modeChoice" id="desktopModeBtn" for="desktopModeRadio">🖥 PC</label>
     <label class="btn sm modeChoice" id="mobileModeBtn" for="mobileModeRadio">📱 スマホ</label>
@@ -246,6 +260,7 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
     <div class="crumbRow" id="crumbs"></div>
     <div class="tabRow">
       <span class="muted">ジャンル：</span><span id="tabs"></span><span class="muted" id="count"></span>
+      <button class="btn sm mobileLayoutToggle" id="mobileLayoutBtn" onclick="toggleMobileLayoutEdit()">🔒 配置固定</button>
       <div class="zoomControls">
         <button class="btn sm" onclick="changeZoom(-0.1)">−</button>
         <span class="zoomLabel" id="zoomLabel">100%</span>
@@ -266,7 +281,7 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
 <aside class="right">
   <div class="card">
     <h3 id="editTitle">スキル編集</h3>
-    <div class="muted">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。</div>
+    <div class="muted">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。v6.5ではスマホのジャンル欄を横1列に圧縮し、ノード配置を通常時は固定するようにしました。</div>
   </div>
 
   <div class="card">
@@ -509,6 +524,7 @@ if(!data.trees[currentTreeId]) currentTreeId="main";
 let currentTab=window.__EMBEDDED_VIEW__?.tab||"総合";
 let selected=window.__EMBEDDED_VIEW__?.selected||firstNodeId();
 let pick=null,drag=null,blockClick=false;
+let mobileLayoutEdit=false;
 let zoom=Math.max(.3,Math.min(1.8,+data.zoom||1));
 
 function uid(prefix="skill"){return prefix+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
@@ -799,7 +815,8 @@ function renderTree(){
     const levelText=x.acquired?(mx?`Lv${x.level} MAX`:`Lv${x.level} / ${x.maxLevel}`):(unlockStatus(x).ready?"未取得・解放可能":"未取得");
     const detail=x.detailTreeId?'<span class="detailMark">▣ 詳細</span>':"";
     const progress=x.acquired?(mx?"MAX":`${x.cur||0} / ${x.goal||100} ${esc(x.unit||"XP")} ・ ${per}%`):"前提達成後に解放";
-    e.innerHTML=`<div class="head"><div class="ico">${esc(x.acquired?(x.icon||"⭐"):"🔒")}</div><div class="nodeBody"><div class="name">${esc(x.name)}</div><div class="sub"><span>${esc(levelText)}</span>${detail}</div></div></div><div class="bar"><div class="fill" style="width:${per}%"></div></div><div class="ptext">${progress}</div><div class="hint">右クリックで詳細</div>`;
+    const nodeHint=uiMode==="mobile"?(mobileLayoutEdit?"配置編集ON・ドラッグで移動":"タップで選択・再タップで編集"):"右クリックで詳細";
+    e.innerHTML=`<div class="head"><div class="ico">${esc(x.acquired?(x.icon||"⭐"):"🔒")}</div><div class="nodeBody"><div class="name">${esc(x.name)}</div><div class="sub"><span>${esc(levelText)}</span>${detail}</div></div></div><div class="bar"><div class="fill" style="width:${per}%"></div></div><div class="ptext">${progress}</div><div class="hint">${nodeHint}</div>`;
     e.addEventListener("pointerdown",ev=>startDrag(ev,x,e));
     e.onclick=()=>{if(blockClick){blockClick=false;return}if(pick){finishPick(x.id);return}const wasSelected=selected===x.id;selected=x.id;render();if(uiMode==="mobile"&&wasSelected)openMobileEditorForSelected()};
     e.ondblclick=()=>{if(x.detailTreeId)openTree(x.detailTreeId)};
@@ -809,12 +826,15 @@ function renderTree(){
 }
 function startDrag(ev,x,e){
   if(ev.button!==0||pick)return;
+  if(uiMode==="mobile"&&ev.pointerType==="touch"&&!mobileLayoutEdit)return;
   const start=pos(x.id);
-  drag={sx:ev.clientX,sy:ev.clientY,ox:start.x,oy:start.y,m:false};
+  const threshold=ev.pointerType==="touch"?12:4;
+  drag={sx:ev.clientX,sy:ev.clientY,ox:start.x,oy:start.y,m:false,threshold};
   const move=v=>{
     if(!drag)return;
     const dx=(v.clientX-drag.sx)/zoom,dy=(v.clientY-drag.sy)/zoom;
-    if(Math.abs(dx)+Math.abs(dy)>4/zoom)drag.m=true;
+    if(Math.abs(dx)+Math.abs(dy)>drag.threshold/zoom)drag.m=true;
+    if(!drag.m)return;
     const nx=Math.max(0,Math.round((drag.ox+dx)/5)*5),ny=Math.max(0,Math.round((drag.oy+dy)/5)*5);
     setPos(x.id,nx,ny,true);e.style.left=nx+"px";e.style.top=ny+"px";canvasSize();drawLines();
   };
@@ -1738,6 +1758,10 @@ function applyUIMode(){
   document.body.classList.toggle("desktopMode",isDesktop);
   document.body.classList.toggle("mobileMode",isMobile);
   document.body.classList.remove("mobileEditorOpen");
+  mobileLayoutEdit=false;
+  document.body.classList.remove("mobileLayoutEdit");
+  const layoutBtn=document.getElementById("mobileLayoutBtn");
+  if(layoutBtn)layoutBtn.textContent="🔒 配置固定";
 
   const db=document.getElementById("desktopModeBtn");
   const mb=document.getElementById("mobileModeBtn");
@@ -1757,6 +1781,15 @@ function applyUIMode(){
     drawLines();
     centerView();
   },20);
+}
+function toggleMobileLayoutEdit(){
+  if(uiMode!=="mobile")return;
+  mobileLayoutEdit=!mobileLayoutEdit;
+  document.body.classList.toggle("mobileLayoutEdit",mobileLayoutEdit);
+  const b=document.getElementById("mobileLayoutBtn");
+  if(b)b.textContent=mobileLayoutEdit?"✥ 配置編集ON":"🔒 配置固定";
+  renderTree();
+  toast(mobileLayoutEdit?"ノード配置を動かせます":"ノード配置を固定しました");
 }
 function setUIMode(mode){
   const next=mode==="mobile"?"mobile":"desktop";
