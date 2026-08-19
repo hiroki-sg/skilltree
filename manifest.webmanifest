@@ -1,0 +1,23 @@
+{
+  "name": "SkillTree",
+  "short_name": "SkillTree",
+  "description": "個人用スキルツリー・成長管理アプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0f12",
+  "theme_color": "#1c2127",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

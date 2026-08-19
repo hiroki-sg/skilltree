@@ -1,0 +1,1837 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c2127">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SkillTree">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<title>SkillTree v6.4</title>
+<style>
+:root{
+  --stone:#b9b3a8;--stoneD:#666057;--panel:#1c2127;--panel2:#11161b;--txt:#f4f4f4;
+  --low:#4d82bc;--mid:#4b9863;--high:#c6972d;--max:#8d59bb;--locked:#15191e;
+  --gold:#f0d36b;--cyan:#92d8ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Yu Gothic","Hiragino Sans","Meiryo",system-ui,sans-serif}
+body{background:linear-gradient(rgba(26,36,30,.65),rgba(10,14,12,.88)),repeating-linear-gradient(0deg,#42604a 0 40px,#395741 40px 80px);color:var(--txt)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) 390px}
+.top{position:sticky;top:0;z-index:50;grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:linear-gradient(#cbc6bc,#a9a397);border-bottom:5px solid var(--stoneD);color:#111;box-shadow:0 3px 12px #0007}
+.title{font-weight:900;border:3px solid #6f695f;background:#ded9d0;padding:7px 11px}.grow{flex:1}
+.btn{border:3px solid #5b554d;background:#d6d0c6;color:#111;padding:7px 9px;font-weight:800}.btn.primary{background:#f0e2a8}.btn.dark{background:#444b52;color:#fff}.btn.danger{background:#dfa1a1}.btn.sm{font-size:12px;padding:4px 6px;border-width:2px}
+.treeSide{min-width:0;background:#0c0f12df;border-right:5px solid var(--stoneD)}
+.toolbar{position:sticky;top:58px;z-index:25;background:#23282eef;border-bottom:3px solid #454b52;padding:7px 10px}
+.crumbRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.crumb{border:1px solid #6d747c;background:#30363d;padding:3px 7px;font-size:12px;cursor:pointer}.crumb.current{color:#f2d76f;border-color:#9a8745}
+.tabRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tab{border:2px solid #626970;background:#363c43;color:#fff;padding:6px 9px;font-weight:800}.tab.on{background:#eee0a7;color:#111}
+.zoomControls{display:flex;gap:4px;align-items:center;margin-left:auto}.zoomLabel{min-width:52px;text-align:center;font-weight:900;font-size:12px}.zoomHelp{font-size:11px;color:#bfc4ca}
+.viewport{overflow:auto;min-height:calc(100vh - 140px);position:relative}
+.zoomStage{position:relative;margin:0 auto;min-width:1px;min-height:1px}
+.canvas{position:absolute;left:0;top:0;min-width:1100px;min-height:1900px;background:repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 44px);transform-origin:0 0}
+svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.node{position:absolute;width:220px;min-height:94px;border:3px solid #ffffff88;border-radius:4px;padding:8px;box-shadow:0 5px 12px #0008,inset 0 0 0 2px #0004;user-select:none;touch-action:none;cursor:grab}
+.node.selected{outline:4px solid var(--gold);box-shadow:0 0 18px #f0d36b88}
+.low{background:linear-gradient(#6598d0,#3f6da2)}
+.mid{background:linear-gradient(#61ab77,#397b4e)}
+.high{background:linear-gradient(#d7ac45,#99711f)}
+.maxed{background:linear-gradient(#a974d0,#70429a);border-color:#d9b5ff}
+.locked{background:linear-gradient(#262a30,#111419);border-color:#5a6067;color:#d8dce0}
+.head{display:flex;gap:8px;align-items:center}.ico{font-size:27px;width:31px;text-align:center}.nodeBody{min-width:0;flex:1}.name{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:12px;margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.detailMark{font-size:11px;padding:1px 5px;border:1px solid #ffffff99;background:#0004}
+.bar{height:10px;background:#0d1115;border:1px solid #ffffff77;margin-top:7px;overflow:hidden}.fill{height:100%;background:#f4f4f4}.ptext{font-size:11px;margin-top:2px;text-shadow:0 1px #000}.hint{font-size:10px;opacity:.75;margin-top:3px}
+.pick .node{outline:2px dashed #99d6ff}.pick .node:hover{outline:4px solid #99d6ff}
+.right{position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto;background:#15191eef;padding:10px}
+.card{border:3px solid #746d5f;background:linear-gradient(#242a31,#171b20);padding:10px;margin-bottom:10px}
+.card h3{margin:0 0 9px;color:#f2d76f;font-size:18px}.muted{font-size:12px;color:#bfc4ca;line-height:1.5}
+.field{margin-bottom:8px}.field label{display:block;font-size:12px;font-weight:800;color:#ebdda5;margin-bottom:3px}
+.field input,.field textarea,.field select{width:100%;background:#0c1014;color:#fff;border:2px solid #626971;padding:7px}.field textarea{min-height:58px;resize:vertical}
+.row{display:flex;gap:6px}.row>*{flex:1}
+.pill{display:inline-block;padding:3px 6px;border:1px solid #666;background:#30353b;font-size:11px;margin:0 4px 6px 0}
+.legend{font-size:11px;display:flex;gap:9px;flex-wrap:wrap}.sq{display:inline-block;width:14px;height:14px;border:1px solid #888;vertical-align:-2px;margin-right:4px}
+.editorProgress{background:#0f1318;border:2px solid #555c63;padding:9px;margin:7px 0}
+.editorProgress .bigbar{height:18px;background:#090c0f;border:2px solid #666;overflow:hidden;margin:6px 0}
+.editorProgress .bigfill{height:100%;background:linear-gradient(90deg,#dfe8f6,#fff)}
+.editorProgress .pct{font-size:24px;font-weight:900;color:#f2d76f}.editorProgress.max .pct{color:#d9b5ff}
+.editorProgress .remain{font-size:12px;color:#c5cad0}
+.drawer{position:fixed;z-index:60;left:0;top:58px;bottom:0;width:360px;background:#121519fa;border-right:5px solid var(--stoneD);padding:54px 10px 12px;overflow:auto;transform:translateX(-360px);transition:.18s}
+.drawer.open{transform:translateX(0)}.drawerToggle{position:fixed;left:8px;top:132px;z-index:70}.drawer h3{color:#f2d76f;margin:0 0 8px}
+.search{width:100%;background:#0c1014;color:#fff;border:2px solid #626971;padding:8px;margin-bottom:8px}
+.future{border:2px solid #4e555d;background:#20252b;padding:8px;margin-bottom:7px}.future strong{display:block}.futureMeta{font-size:11px;color:#bfc4ca;line-height:1.45;margin-top:3px}.futureBtns{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.ctx{display:none;position:fixed;z-index:100;width:330px;max-height:74vh;overflow:auto;background:#171b20;border:4px solid #7a725f;box-shadow:0 8px 25px #000a;padding:10px}.ctx.show{display:block}.ctx h4{margin:0 0 4px;color:#f0d36d}.ctxBtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
+.toast{display:none;position:fixed;z-index:120;bottom:16px;left:50%;transform:translateX(-50%);background:#111;border:2px solid #777;padding:8px 14px}.toast.show{display:block}
+.banner{display:none;position:fixed;z-index:90;top:67px;left:50%;transform:translateX(-50%);background:#dff2ff;color:#10212c;border:3px solid #5993b6;padding:7px 12px;font-weight:900}.banner.show{display:block}
+.empty{text-align:center;color:#aaa;padding:18px}
+.unlockBox{margin:9px 0;border:2px solid #59616a;background:#11161b;padding:9px}
+.unlockBox h3{font-size:15px;margin:0 0 8px;color:#9fdcff}
+.conditionList{display:flex;flex-direction:column;gap:6px;margin:7px 0}
+.conditionItem{border:2px solid #4c545c;background:#1c2228;padding:7px}
+.conditionItem.met{border-color:#568b64;background:#18271d}
+.conditionTitle{font-size:12px;font-weight:900;line-height:1.4}
+.conditionMeta{font-size:11px;color:#bfc5cb;line-height:1.45;margin-top:2px}
+.conditionBar{height:8px;background:#090d10;border:1px solid #5d646c;margin-top:5px;overflow:hidden}
+.conditionFill{height:100%;background:#9fdcff}
+.conditionItem.met .conditionFill{background:#8bd39a}
+.conditionActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.unlockSummary{font-size:12px;font-weight:900;color:#d6dbe0;margin-top:6px}
+.unlockSummary.ready{color:#8bd39a}
+.ctxCondition{border:1px solid #555d65;background:#11161b;padding:6px;margin-top:5px}
+.ctxCondition.met{border-color:#4f845d}
+.ctxCondition .conditionBar{margin-top:4px}
+.availableText{color:#b8f2c3;font-weight:900}
+.growthBox{margin:9px 0;border:2px solid #75648a;background:#15121a;padding:9px}
+.growthBox h3{font-size:15px;margin:0 0 8px;color:#dabdff}
+.growthRule{border:2px solid #55505e;background:#1b1820;padding:8px;margin-top:8px}
+.growthRule.ready{border-color:#6b936f}
+.growthRule.claimed{opacity:.82}
+.growthRuleTitle{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-weight:900}
+.rewardBadge{display:inline-block;padding:2px 7px;border:1px solid #9474b3;background:#3b284c;color:#ead9ff;font-size:11px}
+.claimReady{color:#9ce2aa;font-weight:900}
+.claimedText{color:#c7b6d8;font-weight:900}
+.growthContext{border:1px solid #685977;background:#17131c;padding:7px;margin-top:7px}
+
+.uiModeRadio{
+  position:fixed;
+  width:1px;height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+.modeSwitch{display:flex;gap:4px;align-items:center;flex:0 0 auto}
+.modeSwitch .modeChoice{
+  transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,transform .08s ease;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;
+  user-select:none;
+  white-space:nowrap;
+  min-width:max-content;
+}
+#desktopModeRadio:checked ~ .app #desktopModeBtn,
+#mobileModeRadio:checked ~ .app #mobileModeBtn,
+.modeSwitch .modeChoice.active{
+  background:#284f6d !important;
+  color:#fff !important;
+  border-color:#9fdcff !important;
+  box-shadow:0 0 0 2px #132a3b inset,0 0 0 1px #9fdcff;
+  transform:translateY(1px);
+  font-weight:900;
+}
+#desktopModeRadio:checked ~ .app #desktopModeBtn::before,
+#mobileModeRadio:checked ~ .app #mobileModeBtn::before{content:"✓ "}
+.mobileEditorFab,.mobileEditorHeader{display:none}
+
+body.desktopMode .app,
+#desktopModeRadio:checked ~ .app{grid-template-columns:minmax(0,1fr) 390px}
+body.desktopMode .right,
+#desktopModeRadio:checked ~ .app .right{position:sticky;top:58px;height:calc(100vh - 58px);display:block;transform:none}
+body.desktopMode .treeSide,
+#desktopModeRadio:checked ~ .app .treeSide{border-right:5px solid var(--stoneD)}
+
+body.mobileMode .app,#mobileModeRadio:checked ~ .app{display:block}
+body.mobileMode .treeSide,#mobileModeRadio:checked ~ .app .treeSide{border-right:0;min-height:100vh}
+body.mobileMode .top,#mobileModeRadio:checked ~ .app .top{
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  padding-right:max(14px,env(safe-area-inset-right));
+  padding-left:max(8px,env(safe-area-inset-left));
+}
+body.mobileMode .top .title,#mobileModeRadio:checked ~ .app .top .title{font-size:14px;white-space:nowrap}
+body.mobileMode .top .grow,#mobileModeRadio:checked ~ .app .top .grow{display:none}
+body.mobileMode .top > .btn,body.mobileMode .top > label.btn,#mobileModeRadio:checked ~ .app .top > .btn,#mobileModeRadio:checked ~ .app .top > label.btn{white-space:nowrap;flex:0 0 auto}
+body.mobileMode .toolbar,#mobileModeRadio:checked ~ .app .toolbar{top:54px;padding:6px 7px}
+body.mobileMode .crumbRow,#mobileModeRadio:checked ~ .app .crumbRow{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}
+body.mobileMode .tabRow,#mobileModeRadio:checked ~ .app .tabRow{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}
+body.mobileMode .zoomHelp,#mobileModeRadio:checked ~ .app .zoomHelp{display:none}
+body.mobileMode .zoomControls,#mobileModeRadio:checked ~ .app .zoomControls{margin-left:4px;flex:0 0 auto}
+body.mobileMode .viewport,#mobileModeRadio:checked ~ .app .viewport{
+  min-height:calc(100vh - 116px);
+  height:calc(100vh - 116px);
+  overscroll-behavior:contain;
+}
+body.mobileMode .right,#mobileModeRadio:checked ~ .app .right{
+  display:block;
+  position:fixed;
+  z-index:95;
+  left:0;right:0;bottom:0;top:auto;
+  width:100%;
+  height:min(78vh,760px);
+  transform:translateY(105%);
+  transition:transform .2s ease;
+  border-top:5px solid var(--stoneD);
+  background:#15191efa;
+  padding:54px max(10px,env(safe-area-inset-right)) max(18px,calc(env(safe-area-inset-bottom) + 12px)) max(10px,env(safe-area-inset-left));
+  box-shadow:0 -10px 28px #000a;
+}
+body.mobileMode.mobileEditorOpen .right,body.mobileEditorOpen #mobileModeRadio:checked ~ .app .right{transform:translateY(0)}
+body.mobileMode .mobileEditorFab,#mobileModeRadio:checked ~ .mobileEditorFab{
+  display:block;
+  position:fixed;
+  z-index:92;
+  right:max(14px,env(safe-area-inset-right));
+  bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));
+  border:3px solid #625a49;
+  background:#f0e2a8;
+  color:#111;
+  padding:10px 15px;
+  font-weight:900;
+  box-shadow:0 5px 15px #0008;
+}
+body.mobileMode.mobileEditorOpen .mobileEditorFab,body.mobileEditorOpen #mobileModeRadio:checked ~ .mobileEditorFab{display:none}
+body.mobileMode .mobileEditorHeader,#mobileModeRadio:checked ~ .mobileEditorHeader{
+  display:none;
+  position:fixed;
+  z-index:100;
+  left:0;right:0;
+  bottom:calc(min(78vh,760px) - 49px);
+  height:49px;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  background:linear-gradient(#cbc6bc,#aaa397);
+  border-top:4px solid #655f56;
+  border-bottom:3px solid #655f56;
+  color:#111;
+}
+body.mobileMode.mobileEditorOpen .mobileEditorHeader,body.mobileEditorOpen #mobileModeRadio:checked ~ .mobileEditorHeader{display:flex}
+body.mobileMode .mobileEditorHeader strong,#mobileModeRadio:checked ~ .mobileEditorHeader strong{
+  flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.mobileMode .drawer,#mobileModeRadio:checked ~ .app .drawer{width:min(92vw,370px);transform:translateX(-100%)}
+body.mobileMode .drawer.open,#mobileModeRadio:checked ~ .app .drawer.open{transform:translateX(0)}
+body.mobileMode .drawerToggle,#mobileModeRadio:checked ~ .app .drawerToggle{top:118px;left:7px}
+body.mobileMode .ctx,#mobileModeRadio:checked ~ .app .ctx{width:min(92vw,350px);max-height:72vh}
+body.mobileMode .node,#mobileModeRadio:checked ~ .app .node{width:200px;min-height:90px}
+body.mobileMode .row,#mobileModeRadio:checked ~ .app .row{flex-wrap:wrap}
+body.mobileMode .row>*,#mobileModeRadio:checked ~ .app .row>*{min-width:120px}
+body.mobileMode .card,#mobileModeRadio:checked ~ .app .card{margin-bottom:8px}
+body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~ .app .growthBox,#mobileModeRadio:checked ~ .app .unlockBox{padding:7px}
+
+@media(max-width:880px){
+  body:not(.desktopMode):not(.mobileMode) .drawerToggle{top:150px}
+  body:not(.desktopMode):not(.mobileMode) .app{grid-template-columns:1fr}
+  body:not(.desktopMode):not(.mobileMode) .right{position:relative;top:auto;height:auto;border-top:5px solid var(--stoneD)}
+  body:not(.desktopMode):not(.mobileMode) .treeSide{border-right:0}
+}
+</style>
+</head>
+<body>
+<input class="uiModeRadio" type="radio" name="uiModeNative" id="desktopModeRadio" value="desktop" checked>
+<input class="uiModeRadio" type="radio" name="uiModeNative" id="mobileModeRadio" value="mobile">
+<div class="app">
+<header class="top">
+  <div class="title">SkillTree v6.4</div>
+  <div class="modeSwitch">
+    <label class="btn sm modeChoice" id="desktopModeBtn" for="desktopModeRadio">🖥 PC</label>
+    <label class="btn sm modeChoice" id="mobileModeBtn" for="mobileModeRadio">📱 スマホ</label>
+  </div>
+  <button class="btn dark" onclick="toggleDrawer()">☰ 未解放一覧</button>
+  <button class="btn primary" onclick="addChildSelected()">＋ 選択スキルから分岐</button>
+  <button class="btn" onclick="startPickNew()">＋ 親を選んで追加</button>
+  <button class="btn" onclick="autoArrange(true)">↕ この画面を自動整列</button>
+  <button class="btn" id="backBtn" onclick="goParentTree()">← 親ツリー</button>
+  <div class="grow"></div>
+  <button class="btn" onclick="exportData()">セーブデータ保存</button>
+  <label class="btn">セーブデータ読込<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+  <button class="btn primary" onclick="exportStandaloneHTML()">この状態をHTML保存</button>
+</header>
+
+<section class="treeSide">
+  <div class="toolbar">
+    <div class="crumbRow" id="crumbs"></div>
+    <div class="tabRow">
+      <span class="muted">ジャンル：</span><span id="tabs"></span><span class="muted" id="count"></span>
+      <div class="zoomControls">
+        <button class="btn sm" onclick="changeZoom(-0.1)">−</button>
+        <span class="zoomLabel" id="zoomLabel">100%</span>
+        <button class="btn sm" onclick="changeZoom(0.1)">＋</button>
+        <button class="btn sm" onclick="setZoom(1)">100%</button>
+        <button class="btn sm" onclick="fitTree()">全体</button>
+      </div>
+      <span class="zoomHelp">Ctrl＋ホイール / ピンチ</span>
+    </div>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="zoomStage" id="zoomStage">
+      <div class="canvas" id="canvas"><svg id="lines"></svg></div>
+    </div>
+  </div>
+</section>
+
+<aside class="right">
+  <div class="card">
+    <h3 id="editTitle">スキル編集</h3>
+    <div class="muted">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。</div>
+  </div>
+
+  <div class="card">
+    <div><span class="pill" id="parentPill">親：なし</span><span class="pill" id="childPill">分岐：0</span><span class="pill" id="treePill">ツリー：全体</span></div>
+    <div class="field"><label>スキル名</label><input id="name"></div>
+    <div class="row">
+      <div class="field"><label>アイコン</label><input id="icon"></div>
+      <div class="field"><label>カテゴリ</label><input id="category" list="cats"><datalist id="cats"></datalist></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>現在Lv</label><input id="level" type="number" min="1" oninput="previewProgress()"></div>
+      <div class="field"><label>Lv上限</label><input id="maxLevel" type="number" min="1" oninput="previewProgress()"></div>
+      <div class="field"><label>取得状態</label><select id="acquired" onchange="previewProgress()"><option value="true">習得済み</option><option value="false">未取得</option></select></div>
+    </div>
+    <div class="field"><label>スキル内容</label><textarea id="desc"></textarea></div>
+    <div class="field"><label>レベルアップ条件</label><textarea id="cond"></textarea></div>
+
+    <div class="unlockBox">
+      <h3>🔓 新スキルの解放条件</h3>
+      <div class="muted">親スキルの習得は常に必須です。ここでは追加条件を設定します。「増加」系は条件追加時の値を0地点として数えます。</div>
+      <div class="field" style="margin-top:7px"><label>複数条件の判定</label>
+        <select id="unlockMode" onchange="saveUnlockModeOnly()">
+          <option value="all">すべて満たす（AND）</option>
+          <option value="any">どれか1つ満たす（OR）</option>
+        </select>
+      </div>
+      <div id="unlockConditionList" class="conditionList"></div>
+
+      <div class="card" style="margin:7px 0 0;background:#15191d">
+        <div class="field"><label>条件の種類</label>
+          <select id="newUnlockType" onchange="updateUnlockBuilderHint()">
+            <option value="desc_acquired_gain">指定スキル以下で、新たに習得したスキル数</option>
+            <option value="subtree_level_gain">指定スキル＋配下全体の合計Lv上昇</option>
+            <option value="skill_level_gain">指定した1スキルのLv上昇</option>
+            <option value="skill_level_at_least">指定した1スキルがLv○以上</option>
+            <option value="skill_acquired">指定した1スキルを習得</option>
+          </select>
+        </div>
+        <div class="field"><label>対象スキル</label><select id="newUnlockTarget"></select></div>
+        <div class="field" id="newUnlockGoalField"><label id="newUnlockGoalLabel">必要数</label><input id="newUnlockGoal" type="number" min="1" value="1"></div>
+        <div class="muted" id="unlockBuilderHint"></div>
+        <button class="btn primary sm" style="margin-top:7px" onclick="addUnlockCondition()">＋ 解放条件を追加</button>
+      </div>
+    </div>
+
+    <div class="growthBox">
+      <h3>⚙️ 条件による成長</h3>
+      <div class="muted">解放条件と同じ条件を使って、このスキルにXPやLvを加算できます。条件を満たしたら「受け取る」を押します。受取後は、必要なら基準を現在値に更新して同じルールを再利用できます。</div>
+
+      <div class="growthRule" id="xpGrowthRule">
+        <div class="growthRuleTitle">
+          <span>✨ XP獲得ルール</span>
+          <span class="rewardBadge" id="xpRewardBadge">+10 XP</span>
+        </div>
+        <div class="row" style="margin-top:7px">
+          <div class="field"><label>使用</label>
+            <select id="xpGrowthEnabled" onchange="saveGrowthSettings('xp')">
+              <option value="false">使わない</option>
+              <option value="true">使う</option>
+            </select>
+          </div>
+          <div class="field"><label>条件判定</label>
+            <select id="xpGrowthMode" onchange="saveGrowthSettings('xp')">
+              <option value="all">すべて（AND）</option>
+              <option value="any">どれか1つ（OR）</option>
+            </select>
+          </div>
+          <div class="field"><label>報酬方式</label>
+            <select id="xpGrowthRepeat" onchange="saveGrowthSettings('xp')">
+              <option value="once">1回だけ</option>
+              <option value="repeat">条件量ごとに繰り返し</option>
+            </select>
+          </div>
+          <div class="field"><label>1回あたり獲得XP</label><input id="xpGrowthAmount" type="number" min="1" value="10" onchange="saveGrowthSettings('xp')"></div>
+        </div>
+        <div id="xpGrowthConditions" class="conditionList"></div>
+        <div class="card" style="margin:7px 0 0;background:#141118">
+          <div class="field"><label>条件の種類</label>
+            <select id="xpGrowthType" onchange="updateGrowthBuilder('xp')">
+              <option value="desc_acquired_gain">指定スキル以下で、新たに習得したスキル数</option>
+              <option value="desc_level_gain">指定スキル配下だけの合計Lv上昇</option>
+              <option value="subtree_level_gain">指定スキル＋配下全体の合計Lv上昇</option>
+              <option value="skill_level_gain">指定した1スキルのLv上昇</option>
+              <option value="skill_level_at_least">指定した1スキルがLv○以上</option>
+              <option value="skill_acquired">指定した1スキルを習得</option>
+            </select>
+          </div>
+          <div class="field" id="xpGrowthTargetField"><label>対象スキル</label><select id="xpGrowthTarget"></select></div>
+          <div class="field" id="xpGrowthGoalField"><label id="xpGrowthGoalLabel">必要数</label><input id="xpGrowthGoal" type="number" min="1" value="1"></div>
+          <div class="muted" id="xpGrowthHint"></div>
+          <button class="btn primary sm" style="margin-top:7px" onclick="addGrowthCondition('xp')">＋ XP条件を追加</button>
+        </div>
+        <div class="row" style="margin-top:7px">
+          <button class="btn primary" id="xpClaimBtn" onclick="claimGrowth('xp')">XPを受け取る</button>
+          <button class="btn" id="xpResetBtn" onclick="resetGrowthRule('xp')">基準を今に更新して再利用</button>
+        </div>
+      </div>
+
+      <div class="growthRule" id="levelGrowthRule">
+        <div class="growthRuleTitle">
+          <span>⬆️ レベルアップルール</span>
+          <span class="rewardBadge" id="levelRewardBadge">+1 Lv</span>
+        </div>
+        <div class="row" style="margin-top:7px">
+          <div class="field"><label>使用</label>
+            <select id="levelGrowthEnabled" onchange="saveGrowthSettings('level')">
+              <option value="false">使わない</option>
+              <option value="true">使う</option>
+            </select>
+          </div>
+          <div class="field"><label>条件判定</label>
+            <select id="levelGrowthMode" onchange="saveGrowthSettings('level')">
+              <option value="all">すべて（AND）</option>
+              <option value="any">どれか1つ（OR）</option>
+            </select>
+          </div>
+          <div class="field"><label>上昇Lv</label><input id="levelGrowthAmount" type="number" min="1" value="1" onchange="saveGrowthSettings('level')"></div>
+        </div>
+        <div id="levelGrowthConditions" class="conditionList"></div>
+        <div class="card" style="margin:7px 0 0;background:#141118">
+          <div class="field"><label>条件の種類</label>
+            <select id="levelGrowthType" onchange="updateGrowthBuilder('level')">
+              <option value="desc_acquired_gain">指定スキル以下で、新たに習得したスキル数</option>
+              <option value="subtree_level_gain">指定スキル＋配下全体の合計Lv上昇</option>
+              <option value="skill_level_gain">指定した1スキルのLv上昇</option>
+              <option value="skill_level_at_least">指定した1スキルがLv○以上</option>
+              <option value="skill_acquired">指定した1スキルを習得</option>
+              <option value="self_xp_max">当スキルの経験値がMAX</option>
+            </select>
+          </div>
+          <div class="field" id="levelGrowthTargetField"><label>対象スキル</label><select id="levelGrowthTarget"></select></div>
+          <div class="field" id="levelGrowthGoalField"><label id="levelGrowthGoalLabel">必要数</label><input id="levelGrowthGoal" type="number" min="1" value="1"></div>
+          <div class="muted" id="levelGrowthHint"></div>
+          <button class="btn primary sm" style="margin-top:7px" onclick="addGrowthCondition('level')">＋ Lv条件を追加</button>
+        </div>
+        <div class="row" style="margin-top:7px">
+          <button class="btn primary" id="levelClaimBtn" onclick="claimGrowth('level')">レベルを上げる</button>
+          <button class="btn" id="levelResetBtn" onclick="resetGrowthRule('level')">基準を今に更新して再利用</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin:7px 0;background:#15191d">
+      <h3 style="font-size:15px">次のLvまで</h3>
+      <div class="row">
+        <div class="field"><label>現在</label><input id="cur" type="number" min="0" oninput="previewProgress()"></div>
+        <div class="field"><label>目標</label><input id="goal" type="number" min="1" oninput="previewProgress()"></div>
+        <div class="field"><label>単位</label><input id="unit" placeholder="XP / 問 / 回" oninput="previewProgress()"></div>
+      </div>
+      <div class="editorProgress" id="editorProgress">
+        <div class="pct" id="editorPct">0%</div>
+        <div class="bigbar"><div class="bigfill" id="editorFill" style="width:0%"></div></div>
+        <div id="editorProgressText">0 / 100 XP</div>
+        <div class="remain" id="editorRemain">次のLvまであと 100 XP</div>
+      </div>
+      <div class="row">
+        <button class="btn sm" onclick="bump(1)">+1</button>
+        <button class="btn sm" onclick="bump(5)">+5</button>
+        <button class="btn sm" onclick="bump(10)">+10</button>
+        <button class="btn sm" onclick="bump(-1)">-1</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>X（この画面だけ微調整）</label><input id="x" type="number"></div>
+      <div class="field"><label>Y（この画面だけ微調整）</label><input id="y" type="number"></div>
+    </div>
+
+    <div class="row">
+      <button class="btn primary" onclick="saveSelected()">保存</button>
+      <button class="btn" onclick="startPickChange()">親をクリックで変更</button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn" onclick="addChildSelected()">このスキルから分岐</button>
+      <button class="btn" onclick="openOrCreateDetail()">詳細ツリー</button>
+      <button class="btn danger" id="deleteDetailBtn" onclick="deleteSelectedDetailTree()">詳細ツリー削除</button>
+      <button class="btn danger" onclick="deleteSelected()">削除</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>色分け</h3>
+    <div class="legend">
+      <span><span class="sq" style="background:var(--low)"></span>Lv1〜3</span>
+      <span><span class="sq" style="background:var(--mid)"></span>Lv4〜6</span>
+      <span><span class="sq" style="background:var(--high)"></span>Lv7以上</span>
+      <span><span class="sq" style="background:var(--max)"></span>Lv上限＝MAX</span>
+      <span><span class="sq" style="background:var(--locked)"></span>未取得＋🔒</span>
+    </div>
+  </div>
+</aside>
+</div>
+
+<button class="btn drawerToggle" onclick="toggleDrawer()">☰</button>
+<aside class="drawer" id="drawer">
+  <h3>未解放スキル一覧</h3>
+  <div class="muted" style="margin-bottom:8px">今開いているツリーだけを対象に、まだ前提が満たされていないスキルを収納します。</div>
+  <input class="search" id="search" placeholder="🔍 スキル名・内容・カテゴリを検索" oninput="renderFuture()">
+  <div style="display:flex;gap:5px;margin-bottom:8px">
+    <button class="btn primary sm" onclick="startPickNew()">＋ 親を選んで追加</button>
+    <button class="btn sm" onclick="addRootFuture()">＋ 親なし追加</button>
+  </div>
+  <div id="futureList"></div>
+</aside>
+
+<div class="ctx" id="ctx"></div>
+<div class="toast" id="toast"></div>
+<div class="banner" id="banner">親にしたいスキルをクリックしてください（Escでキャンセル）</div>
+<button class="mobileEditorFab" id="mobileEditorFab" onclick="toggleMobileEditor()">✏️ 編集</button>
+<div class="mobileEditorHeader" id="mobileEditorHeader">
+  <strong id="mobileEditorTitle">スキル編集</strong>
+  <button class="btn sm" onclick="toggleMobileEditor(false)">▼ 閉じる</button>
+</div>
+
+<script>
+const KEY=window.__EMBEDDED_STORAGE_KEY__||"custom_skill_tree_v5";
+const OLD4="custom_skill_tree_v4",OLD3="custom_skill_tree_v3",OLD2="custom_skill_tree_v2",OLD1="custom_skill_tree_v1";
+const W=220,H=94,TOP=55,V_GAP=220,X_GAP=270,ROOT_GAP=120;
+
+const sampleNodes=[
+{id:"root",treeId:"main",name:"自己成長",icon:"🌱",category:"総合",level:4,maxLevel:10,acquired:true,description:"人生全体の土台。",condition:"継続して生活・学習を回す。",parentId:"",cur:65,goal:100,unit:"XP"},
+{id:"think",treeId:"main",name:"思考・認知",icon:"🧠",category:"思考",level:4,maxLevel:10,acquired:true,description:"情報を整理し、構造を見つけて考える力。",condition:"考えを言語化・整理する。",parentId:"root",cur:75,goal:100,unit:"XP"},
+{id:"med",treeId:"main",name:"医学",icon:"➕",category:"医学",level:4,maxLevel:10,acquired:true,description:"医学知識・臨床思考。",condition:"授業・問題演習・症例検討。",parentId:"root",cur:60,goal:100,unit:"XP"},
+{id:"life",treeId:"main",name:"生活",icon:"🏠",category:"生活",level:4,maxLevel:10,acquired:true,description:"家事・自炊・身だしなみなど。",condition:"生活を自力で安定して回す。",parentId:"root",cur:70,goal:100,unit:"XP"},
+{id:"improve",treeId:"main",name:"改善思考",icon:"🔄",category:"思考",level:5,maxLevel:5,acquired:true,description:"問題点を見つけ、改善案を作り、再評価を回す。",condition:"行動ログ→改善→検証を3週間継続。",parentId:"think",cur:100,goal:100,unit:"XP"},
+{id:"structure",treeId:"main",name:"構造化",icon:"🧩",category:"思考",level:4,maxLevel:10,acquired:true,description:"複雑なものを要素と関係に分けて整理する。",condition:"図式化・要約を継続。",parentId:"think",cur:56,goal:100,unit:"XP"},
+{id:"clinical",treeId:"main",name:"臨床思考",icon:"💭",category:"医学",level:3,maxLevel:10,acquired:true,description:"症状から鑑別・検査・治療へつなげる。",condition:"症例を病態から説明する。",parentId:"med",cur:45,goal:100,unit:"XP"},
+{id:"solo",treeId:"main",name:"一人暮らし",icon:"🛋️",category:"生活",level:4,maxLevel:10,acquired:true,description:"家事・買い物・自炊などを回す。",condition:"生活を崩さず継続。",parentId:"life",cur:78,goal:100,unit:"XP"},
+{id:"ecg",treeId:"main",name:"心電図",icon:"📈",category:"医学",level:2,maxLevel:10,acquired:false,description:"心電図の基本的な波形を理解する。",condition:"基礎問題30問＋代表波形を説明できる。",parentId:"clinical",cur:12,goal:30,unit:"問"},
+{id:"hair",treeId:"main",name:"ヘアセット",icon:"💇",category:"生活",level:2,maxLevel:10,acquired:false,description:"髪型を安定して整える。",condition:"10回練習して再現性を上げる。",parentId:"solo",cur:3,goal:10,unit:"回"},
+{id:"delegate",treeId:"main",name:"委任",icon:"↔️",category:"運営",level:3,maxLevel:10,acquired:false,description:"自分で抱えず、人に仕事を任せる。",condition:"2つ以上の仕事を適切に委任する。",parentId:"improve",cur:0,goal:2,unit:"件"},
+{id:"ecg_read",treeId:"main",name:"心電図読影",icon:"📊",category:"医学",level:4,maxLevel:10,acquired:false,description:"12誘導心電図を系統的に読む。",condition:"心電図を習得後、50症例を読む。",parentId:"ecg",cur:0,goal:50,unit:"症例"},
+{id:"arrhythmia",treeId:"main",name:"不整脈診断",icon:"⚡",category:"医学",level:5,maxLevel:10,acquired:false,description:"代表的な不整脈を判別する。",condition:"心電図読影を習得後、代表波形を説明できる。",parentId:"ecg_read",cur:0,goal:20,unit:"症例"}
+];
+
+let data=loadData();
+let uiMode=window.__EMBEDDED_VIEW__?.uiMode||data.uiMode||((window.innerWidth<=880)?"mobile":"desktop");
+let currentTreeId=window.__EMBEDDED_VIEW__?.treeId||hashTree()||"main";
+if(!data.trees[currentTreeId]) currentTreeId="main";
+let currentTab=window.__EMBEDDED_VIEW__?.tab||"総合";
+let selected=window.__EMBEDDED_VIEW__?.selected||firstNodeId();
+let pick=null,drag=null,blockClick=false;
+let zoom=Math.max(.3,Math.min(1.8,+data.zoom||1));
+
+function uid(prefix="skill"){return prefix+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+function cp(o){return JSON.parse(JSON.stringify(o))}
+function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function attr(s){return esc(s)}
+function hashTree(){let m=location.hash.match(/tree=([^&]+)/);return m?decodeURIComponent(m[1]):null}
+function setHashTree(id){history.replaceState(null,"","#tree="+encodeURIComponent(id))}
+function node(id){return data.nodes.find(x=>x.id===id)}
+function tree(id=currentTreeId){return data.trees[id]}
+function rootSkill(){let t=tree();return t?.rootSkillId?node(t.rootSkillId):null}
+function nodeTreeId(x){return x.treeId||"main"}
+function treeOwnNodes(id=currentTreeId){return data.nodes.filter(x=>nodeTreeId(x)===id)}
+function treeAllNodes(id=currentTreeId){
+  const t=data.trees[id];
+  const own=treeOwnNodes(id);
+  if(id==="main"||!t?.rootSkillId)return own;
+  const r=node(t.rootSkillId);
+  return r?[r,...own.filter(x=>x.id!==r.id)]:own;
+}
+function kids(id,tid=currentTreeId){return treeOwnNodes(tid).filter(x=>x.parentId===id)}
+function parent(x){
+  if(!x?.parentId)return null;
+  return node(x.parentId)||null;
+}
+function normalizeNode(x){
+  return {
+    id:x.id||uid(),treeId:x.treeId||"main",name:x.name||"無名スキル",icon:(x.icon&&x.icon!=="🔒")?x.icon:"⭐",
+    category:x.category||"その他",level:Math.max(1,+x.level||1),maxLevel:Math.max(1,+x.maxLevel||10),
+    acquired:typeof x.acquired==="boolean"?x.acquired:x.status!=="locked",
+    description:x.description||"",condition:x.condition||"",parentId:x.parentId||"",
+    cur:+(x.cur??x.progressCurrent)||0,goal:Math.max(1,+(x.goal??x.progressGoal)||100),unit:x.unit||x.progressUnit||"XP",
+    detailTreeId:x.detailTreeId||null,
+    unlockMode:x.unlockMode==="any"?"any":"all",
+    unlockConditions:Array.isArray(x.unlockConditions)?x.unlockConditions.map(normalizeUnlockCondition):[],
+    growthRules:{
+      xp:normalizeGrowthRule(x.growthRules?.xp,"xp"),
+      level:normalizeGrowthRule(x.growthRules?.level,"level")
+    }
+  }
+}
+function normalizeGrowthRule(r,kind){
+  return {
+    enabled:!!r?.enabled,
+    mode:r?.mode==="any"?"any":"all",
+    amount:Math.max(1,+r?.amount||(kind==="xp"?10:1)),
+    claimed:!!r?.claimed,
+    repeatMode:(kind==="xp"&&r?.repeatMode==="repeat")?"repeat":"once",
+    rewardedCycles:Math.max(0,+r?.rewardedCycles||0),
+    conditions:Array.isArray(r?.conditions)?r.conditions.map(normalizeUnlockCondition):[]
+  }
+}
+function normalizeUnlockCondition(c){
+  return {
+    id:c?.id||uid("cond"),
+    type:c?.type||"skill_acquired",
+    targetId:c?.targetId||"",
+    goal:Math.max(1,+c?.goal||1),
+    baseline:Number.isFinite(+c?.baseline)?+c.baseline:0,
+    baselineLevels:(c?.baselineLevels&&typeof c.baselineLevels==="object")?{...c.baselineLevels}:null
+  }
+}
+function migratedFrom(p){
+  const nodes=(p.nodes||[]).map(normalizeNode);
+  const layouts={"main::総合":{}};
+  for(const x of p.nodes||[]){
+    if(Number.isFinite(+x.x)&&Number.isFinite(+x.y)){
+      layouts["main::総合"][x.id]={x:+x.x,y:+x.y,manual:false};
+    }
+  }
+  return {zoom:+p.zoom||1,uiMode:p.uiMode||null,trees:{main:{id:"main",name:"全体",rootSkillId:null,parentTreeId:null,parentSkillId:null}},nodes,layouts};
+}
+function loadData(){
+  try{
+    let r=localStorage.getItem(KEY);
+    if(r){
+      let p=JSON.parse(r);
+      p.trees=p.trees||{main:{id:"main",name:"全体",rootSkillId:null,parentTreeId:null,parentSkillId:null}};
+      p.nodes=(p.nodes||[]).map(normalizeNode);
+      p.layouts=p.layouts||{};
+      return p;
+    }
+  }catch(_){}
+  try{
+    if(window.__EMBEDDED_SKILLTREE_DATA__){
+      let p=cp(window.__EMBEDDED_SKILLTREE_DATA__);
+      p.trees=p.trees||{main:{id:"main",name:"全体",rootSkillId:null,parentTreeId:null,parentSkillId:null}};
+      p.nodes=(p.nodes||[]).map(normalizeNode);
+      p.layouts=p.layouts||{};
+      return p;
+    }
+  }catch(_){}
+  for(const k of [OLD4,OLD3,OLD2,OLD1]){
+    try{let r=localStorage.getItem(k);if(r)return migratedFrom(JSON.parse(r))}catch(_){}
+  }
+  return {
+    zoom:1,
+    uiMode:null,
+    trees:{main:{id:"main",name:"全体",rootSkillId:null,parentTreeId:null,parentSkillId:null}},
+    nodes:cp(sampleNodes).map(normalizeNode),
+    layouts:{}
+  };
+}
+let storageWriteFailed=false;
+function save(){
+  data.zoom=zoom;
+  data.uiMode=uiMode;
+  try{
+    localStorage.setItem(KEY,JSON.stringify(data));
+    storageWriteFailed=false;
+    return true;
+  }catch(err){
+    storageWriteFailed=true;
+    return false;
+  }
+}
+function viewKey(){return currentTreeId+"::"+currentTab}
+function layout(){let k=viewKey();data.layouts[k]=data.layouts[k]||{};return data.layouts[k]}
+function pos(id){
+  const p=layout()[id];
+  if(p)return p;
+  return {x:60,y:50,manual:false};
+}
+function setPos(id,x,y,manual=false){layout()[id]={x:Math.max(0,+x||0),y:Math.max(0,+y||0),manual:!!manual}}
+function isMaxed(x){return x.acquired && +x.level>=Math.max(1,+x.maxLevel||10)}
+function classFor(x){
+  if(!x.acquired)return"locked";
+  if(isMaxed(x))return"maxed";
+  return +x.level<=3?"low":+x.level<=6?"mid":"high";
+}
+function progressPct(x){
+  if(!x.acquired)return 0;
+  if(isMaxed(x))return 100;
+  return Math.max(0,Math.min(100,Math.round((+x.cur||0)/Math.max(1,+x.goal||100)*100)));
+}
+function categories(){
+  const own=treeOwnNodes();
+  return ["総合",...new Set(own.map(x=>x.category).filter(c=>c&&c!=="総合"))];
+}
+function isTreeVisible(x){
+  if(x.acquired)return true;
+  if(!x.parentId)return true;
+  return !!parent(x)?.acquired;
+}
+function visibleBase(){
+  const all=treeAllNodes();
+  return all.filter(x=>{
+    if(currentTreeId!=="main" && x.id===tree().rootSkillId)return true;
+    return isTreeVisible(x);
+  });
+}
+function shown(){
+  const all=visibleBase();
+  if(currentTab==="総合")return all;
+  const ids=new Set();
+  all.filter(x=>x.category===currentTab).forEach(x=>{
+    let cur=x;
+    while(cur&&!ids.has(cur.id)){
+      ids.add(cur.id);
+      if(currentTreeId!=="main"&&cur.id===tree().rootSkillId)break;
+      cur=parent(cur);
+    }
+  });
+  if(currentTreeId!=="main"&&tree().rootSkillId)ids.add(tree().rootSkillId);
+  return all.filter(x=>ids.has(x.id));
+}
+function hidden(){
+  return treeOwnNodes().filter(x=>!x.acquired&&!isTreeVisible(x));
+}
+function firstNodeId(){
+  const a=treeAllNodes();
+  return a[0]?.id||data.nodes[0]?.id||"";
+}
+function childrenShown(id){
+  const ids=new Set(shown().map(x=>x.id));
+  return kids(id).filter(x=>ids.has(x.id));
+}
+function ensureLayout(){
+  const a=shown(),l=layout();
+  if(a.some(x=>!l[x.id]))autoArrange(false,false);
+}
+function autoArrange(force=true,notify=true){
+  const a=shown();
+  if(!a.length)return;
+  const ids=new Set(a.map(x=>x.id));
+  const childMap=new Map(a.map(x=>[x.id,[]]));
+  a.forEach(x=>{
+    if(x.parentId&&ids.has(x.parentId))childMap.get(x.parentId).push(x);
+  });
+  for(const arr of childMap.values())arr.sort((a,b)=>a.name.localeCompare(b.name,"ja"));
+  const roots=a.filter(x=>!x.parentId||!ids.has(x.parentId)).sort((a,b)=>a.name.localeCompare(b.name,"ja"));
+  let nextX=60;
+  const ideal=new Map();
+  function place(x,depth){
+    const cs=childMap.get(x.id)||[];
+    let xx;
+    if(!cs.length){xx=nextX;nextX+=X_GAP}
+    else{
+      const xs=cs.map(c=>place(c,depth+1));
+      xx=(Math.min(...xs)+Math.max(...xs))/2;
+    }
+    ideal.set(x.id,{x:Math.round(xx),y:TOP+depth*V_GAP});
+    return xx;
+  }
+  roots.forEach((r,i)=>{if(i)nextX+=ROOT_GAP;place(r,0)});
+  let minX=Math.min(...[...ideal.values()].map(p=>p.x));
+  let maxX=Math.max(...[...ideal.values()].map(p=>p.x+W));
+  const vp=document.getElementById("viewport");
+  const visibleW=(vp?.clientWidth||1100)/Math.max(.3,zoom);
+  const contentW=maxX-minX;
+  const desiredLeft=Math.max(40,(visibleW-contentW)/2);
+  const shift=desiredLeft-minX;
+  const l=layout();
+  a.forEach(x=>{
+    const p=ideal.get(x.id);
+    if(force||!l[x.id]||!l[x.id].manual)l[x.id]={x:Math.round(p.x+shift),y:p.y,manual:false};
+  });
+  save();
+  renderTree();
+  if(notify&&force)toast("この画面だけ自動整列しました");
+}
+function canvasSize(){
+  const a=shown();
+  const ps=a.map(x=>pos(x.id));
+  const maxX=ps.length?Math.max(...ps.map(p=>p.x)):1000;
+  const maxY=ps.length?Math.max(...ps.map(p=>p.y)):1600;
+  const c=document.getElementById("canvas"),stage=document.getElementById("zoomStage"),vp=document.getElementById("viewport");
+  const vw=vp?.clientWidth||1100;
+  const baseW=Math.max(1100,Math.round(vw/Math.max(zoom,.01))-4,maxX+W+100);
+  const baseH=Math.max(1900,maxY+H+240);
+  c.style.width=baseW+"px";c.style.height=baseH+"px";c.style.minHeight=baseH+"px";c.style.transform=`scale(${zoom})`;
+  stage.style.width=Math.max(1,Math.round(baseW*zoom))+"px";stage.style.height=Math.max(1,Math.round(baseH*zoom))+"px";
+  document.getElementById("zoomLabel").textContent=Math.round(zoom*100)+"%";
+}
+function renderCrumbs(){
+  const box=document.getElementById("crumbs");box.innerHTML="";
+  const chain=[];
+  let tid=currentTreeId,guard=0;
+  while(tid&&guard++<30){
+    const t=data.trees[tid];if(!t)break;
+    chain.unshift({id:tid,name:t.name||"詳細ツリー"});
+    tid=t.parentTreeId;
+  }
+  chain.forEach((c,i)=>{
+    const b=document.createElement("span");
+    b.className="crumb "+(i===chain.length-1?"current":"");
+    b.textContent=c.name;
+    b.onclick=()=>openTree(c.id);
+    box.appendChild(b);
+    if(i<chain.length-1){let s=document.createElement("span");s.textContent="›";s.className="muted";box.appendChild(s)}
+  });
+  document.getElementById("backBtn").disabled=currentTreeId==="main";
+}
+function renderTabs(){
+  const t=document.getElementById("tabs");t.innerHTML="";
+  categories().forEach(c=>{
+    const b=document.createElement("button");b.className="tab "+(currentTab===c?"on":"");b.textContent=c;
+    b.onclick=()=>{currentTab=c;ensureLayout();render();centerView()};
+    t.appendChild(b);
+  });
+  document.getElementById("count").textContent=`表示 ${shown().length}件 / さらに先 ${hidden().length}件`;
+}
+function drawLines(){
+  const s=document.getElementById("lines");s.innerHTML="";
+  const a=shown(),ids=new Set(a.map(x=>x.id));
+  a.forEach(x=>{
+    if(!x.parentId||!ids.has(x.parentId))return;
+    const p=pos(x.parentId),q=pos(x.id);
+    const x1=p.x+W/2,y1=p.y+H,x2=q.x+W/2,y2=q.y;
+    const gap=Math.max(0,y2-y1);
+    const minStem=52;
+    const upperStem=Math.min(Math.max(minStem,gap*0.5),Math.max(minStem,gap-minStem));
+    const my=(gap>=minStem*2)?(y1+upperStem):((y1+y2)/2);
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",`M ${x1} ${y1} L ${x1} ${my} L ${x2} ${my} L ${x2} ${y2}`);
+    path.setAttribute("fill","none");path.setAttribute("stroke",x.acquired?"#e4e7eb":"#888f96");path.setAttribute("stroke-width","4");
+    if(!x.acquired)path.setAttribute("stroke-dasharray","8 7");
+    s.appendChild(path);
+  });
+}
+function renderTree(){
+  const c=document.getElementById("canvas");c.classList.toggle("pick",!!pick);c.querySelectorAll(".node").forEach(e=>e.remove());
+  ensureLayout();
+  canvasSize();drawLines();
+  shown().forEach(x=>{
+    const p=pos(x.id),e=document.createElement("div"),per=progressPct(x),mx=isMaxed(x);
+    e.className=`node ${classFor(x)} ${x.id===selected?"selected":""}`;e.style.left=p.x+"px";e.style.top=p.y+"px";
+    const levelText=x.acquired?(mx?`Lv${x.level} MAX`:`Lv${x.level} / ${x.maxLevel}`):(unlockStatus(x).ready?"未取得・解放可能":"未取得");
+    const detail=x.detailTreeId?'<span class="detailMark">▣ 詳細</span>':"";
+    const progress=x.acquired?(mx?"MAX":`${x.cur||0} / ${x.goal||100} ${esc(x.unit||"XP")} ・ ${per}%`):"前提達成後に解放";
+    e.innerHTML=`<div class="head"><div class="ico">${esc(x.acquired?(x.icon||"⭐"):"🔒")}</div><div class="nodeBody"><div class="name">${esc(x.name)}</div><div class="sub"><span>${esc(levelText)}</span>${detail}</div></div></div><div class="bar"><div class="fill" style="width:${per}%"></div></div><div class="ptext">${progress}</div><div class="hint">右クリックで詳細</div>`;
+    e.addEventListener("pointerdown",ev=>startDrag(ev,x,e));
+    e.onclick=()=>{if(blockClick){blockClick=false;return}if(pick){finishPick(x.id);return}const wasSelected=selected===x.id;selected=x.id;render();if(uiMode==="mobile"&&wasSelected)openMobileEditorForSelected()};
+    e.ondblclick=()=>{if(x.detailTreeId)openTree(x.detailTreeId)};
+    e.oncontextmenu=ev=>{ev.preventDefault();selected=x.id;renderTree();fillEditor();showCtx(ev.clientX,ev.clientY,x.id)};
+    c.appendChild(e);
+  });
+}
+function startDrag(ev,x,e){
+  if(ev.button!==0||pick)return;
+  const start=pos(x.id);
+  drag={sx:ev.clientX,sy:ev.clientY,ox:start.x,oy:start.y,m:false};
+  const move=v=>{
+    if(!drag)return;
+    const dx=(v.clientX-drag.sx)/zoom,dy=(v.clientY-drag.sy)/zoom;
+    if(Math.abs(dx)+Math.abs(dy)>4/zoom)drag.m=true;
+    const nx=Math.max(0,Math.round((drag.ox+dx)/5)*5),ny=Math.max(0,Math.round((drag.oy+dy)/5)*5);
+    setPos(x.id,nx,ny,true);e.style.left=nx+"px";e.style.top=ny+"px";canvasSize();drawLines();
+  };
+  const up=()=>{
+    if(drag?.m){blockClick=true;save();fillEditor()}
+    drag=null;window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up);
+  };
+  window.addEventListener("pointermove",move);window.addEventListener("pointerup",up);
+}
+
+function allChildren(id){
+  return data.nodes.filter(x=>x.parentId===id);
+}
+function allDescendants(targetId){
+  const out=[],seen=new Set();
+  function walk(id){
+    allChildren(id).forEach(c=>{
+      if(seen.has(c.id))return;
+      seen.add(c.id);out.push(c);walk(c.id);
+    });
+  }
+  walk(targetId);
+  return out;
+}
+function acquiredDescendantCount(targetId){
+  return allDescendants(targetId).filter(x=>x.acquired).length;
+}
+function subtreeLevelTotal(targetId){
+  const target=node(targetId);
+  if(!target)return 0;
+  return [target,...allDescendants(targetId)]
+    .filter(x=>x.acquired)
+    .reduce((sum,x)=>sum+(+x.level||0),0);
+}
+function subtreeLevelBaselineMap(targetId){
+  const t=node(targetId);
+  if(!t)return {};
+  const map={};
+  [t,...allDescendants(targetId)].forEach(x=>{map[x.id]=+x.level||0});
+  return map;
+}
+function descendantLevelBaselineMap(targetId){
+  const map={};
+  allDescendants(targetId).forEach(x=>{map[x.id]=+x.level||0});
+  return map;
+}
+function snapshotForCondition(type,targetId){
+  const t=node(targetId);
+  if(!t)return 0;
+  if(type==="desc_acquired_gain")return acquiredDescendantCount(targetId);
+  if(type==="skill_level_gain")return +t.level||0;
+  return 0;
+}
+function conditionTypeLabel(type){
+  return {
+    desc_acquired_gain:"配下で新たに習得したスキル数",
+    desc_level_gain:"配下だけの合計Lv上昇",
+    subtree_level_gain:"対象＋配下全体の合計Lv上昇",
+    skill_level_gain:"指定スキルのLv上昇",
+    skill_level_at_least:"指定スキルの必要Lv",
+    skill_acquired:"指定スキルの習得",
+    self_xp_max:"当スキルの経験値MAX"
+  }[type]||"解放条件";
+}
+function evaluateUnlockCondition(c){
+  c=normalizeUnlockCondition(c);
+  const t=node(c.targetId);
+  if(!t){
+    return {met:false,current:0,goal:c.goal||1,pct:0,label:"対象スキルが見つかりません",detail:"削除されたスキルを参照しています"};
+  }
+  let current=0,goal=Math.max(1,+c.goal||1),detail="";
+  if(c.type==="self_xp_max"){
+    current=Math.max(0,+t.cur||0);
+    goal=Math.max(1,+t.goal||1);
+    detail=`${t.name} の経験値：${current} / ${goal} ${t.unit||"XP"}`;
+  }else if(c.type==="desc_acquired_gain"){
+    const total=acquiredDescendantCount(c.targetId);
+    current=Math.max(0,total-(+c.baseline||0));
+    detail=`${t.name} 以下で新たに習得：${current} / ${goal}`;
+  }else if(c.type==="desc_level_gain"){
+    if(!c.baselineLevels||typeof c.baselineLevels!=="object")c.baselineLevels=descendantLevelBaselineMap(c.targetId);
+    const members=allDescendants(c.targetId);
+    // New descendants begin at their first observed level, so unlocking a Lv1
+    // skill by itself does not count as "+1 level".
+    members.forEach(s=>{
+      if(!(s.id in c.baselineLevels))c.baselineLevels[s.id]=+s.level||0;
+    });
+    current=members
+      .filter(s=>s.acquired)
+      .reduce((sum,s)=>sum+Math.max(0,(+s.level||0)-(+c.baselineLevels[s.id]||0)),0);
+    detail=`${t.name} 配下だけの合計Lv上昇：${current} / ${goal}`;
+  }else if(c.type==="subtree_level_gain"){
+    if(!c.baselineLevels||typeof c.baselineLevels!=="object")c.baselineLevels=subtreeLevelBaselineMap(c.targetId);
+    const members=[t,...allDescendants(c.targetId)];
+    // A newly created descendant starts counting only from the level at which
+    // this condition first sees it, so merely unlocking a Lv1 skill is not
+    // treated as "+1 level".
+    members.forEach(s=>{
+      if(!(s.id in c.baselineLevels))c.baselineLevels[s.id]=+s.level||0;
+    });
+    current=members
+      .filter(s=>s.acquired)
+      .reduce((sum,s)=>sum+Math.max(0,(+s.level||0)-(+c.baselineLevels[s.id]||0)),0);
+    detail=`${t.name}＋配下の合計Lv上昇：${current} / ${goal}`;
+  }else if(c.type==="skill_level_gain"){
+    current=Math.max(0,(+t.level||0)-(+c.baseline||0));
+    detail=`${t.name} のLv上昇：${current} / ${goal}`;
+  }else if(c.type==="skill_level_at_least"){
+    current=Math.max(0,+t.level||0);
+    detail=`${t.name}：Lv${current} / 必要Lv${goal}`;
+  }else if(c.type==="skill_acquired"){
+    current=t.acquired?1:0;goal=1;
+    detail=`${t.name}：${t.acquired?"習得済み":"未習得"}`;
+  }
+  const met=current>=goal;
+  return {
+    met,current,goal,
+    pct:Math.max(0,Math.min(100,Math.round(current/Math.max(1,goal)*100))),
+    label:conditionTypeLabel(c.type),
+    detail
+  };
+}
+function unlockStatus(x){
+  const parentOk=!x.parentId||!!parent(x)?.acquired;
+  const conds=(x.unlockConditions||[]).map(c=>evaluateUnlockCondition(c));
+  const customOk=!conds.length ? true : (x.unlockMode==="any" ? conds.some(c=>c.met) : conds.every(c=>c.met));
+  const metCount=conds.filter(c=>c.met).length;
+  return {parentOk,customOk,ready:parentOk&&customOk,conds,metCount,total:conds.length};
+}
+function skillOptionLabel(x){
+  const tn=data.trees[nodeTreeId(x)]?.name||nodeTreeId(x);
+  return `${tn} · ${x.name}`;
+}
+function populateUnlockTargetSelect(){
+  const sel=document.getElementById("newUnlockTarget");
+  if(!sel)return;
+  const prev=sel.value;
+  const candidates=data.nodes
+    .filter(x=>x.id!==selected)
+    .sort((a,b)=>skillOptionLabel(a).localeCompare(skillOptionLabel(b),"ja"));
+  sel.innerHTML=candidates.map(x=>`<option value="${attr(x.id)}">${esc(skillOptionLabel(x))}</option>`).join("");
+  if(candidates.some(x=>x.id===prev))sel.value=prev;
+}
+function updateUnlockBuilderHint(){
+  const type=document.getElementById("newUnlockType")?.value;
+  const field=document.getElementById("newUnlockGoalField");
+  const lab=document.getElementById("newUnlockGoalLabel");
+  const hint=document.getElementById("unlockBuilderHint");
+  if(!field||!lab||!hint)return;
+  field.style.display=type==="skill_acquired"?"none":"";
+  if(type==="desc_acquired_gain"){
+    lab.textContent="新たに習得するスキル数";
+    hint.textContent="例：循環器以下で、条件を作った時点から新たに5スキル習得したら解放。";
+  }else if(type==="subtree_level_gain"){
+    lab.textContent="必要な合計Lv上昇";
+    hint.textContent="対象スキル自身＋その配下すべてのLv上昇量を合計します。詳細ツリー内のスキルも含みます。";
+  }else if(type==="skill_level_gain"){
+    lab.textContent="必要なLv上昇";
+    hint.textContent="例：心電図が、条件作成時点から3Lv上がったら解放。";
+  }else if(type==="skill_level_at_least"){
+    lab.textContent="必要Lv";
+    hint.textContent="例：心電図がLv5以上になったら解放。";
+  }else{
+    lab.textContent="必要数";
+    hint.textContent="指定したスキルを習得したら解放。";
+  }
+}
+function renderUnlockConditions(){
+  const x=node(selected),list=document.getElementById("unlockConditionList");
+  if(!x||!list)return;
+  document.getElementById("unlockMode").value=x.unlockMode||"all";
+  populateUnlockTargetSelect();
+  updateUnlockBuilderHint();
+  const conditions=x.unlockConditions||[];
+  if(!conditions.length){
+    list.innerHTML='<div class="muted">追加条件なし。親スキルを習得すればこのスキルを習得できます。</div>';
+    return;
+  }
+  const status=unlockStatus(x);
+  list.innerHTML="";
+  conditions.forEach((c,i)=>{
+    const ev=evaluateUnlockCondition(c),t=node(c.targetId);
+    const d=document.createElement("div");
+    d.className="conditionItem "+(ev.met?"met":"");
+    d.innerHTML=`<div class="conditionTitle">${ev.met?"✅":"⬜"} ${esc(ev.label)}</div>
+      <div class="conditionMeta">対象：${esc(t?t.name:"不明")}<br>${esc(ev.detail)}</div>
+      <div class="conditionBar"><div class="conditionFill" style="width:${ev.pct}%"></div></div>
+      <div class="conditionActions">
+        ${["desc_acquired_gain","desc_level_gain","subtree_level_gain","skill_level_gain"].includes(c.type)?`<button class="btn sm" data-act="reset">基準を今にリセット</button>`:""}
+        <button class="btn sm danger" data-act="delete">削除</button>
+      </div>`;
+    const del=d.querySelector('[data-act="delete"]');
+    if(del)del.onclick=()=>removeUnlockCondition(i);
+    const reset=d.querySelector('[data-act="reset"]');
+    if(reset)reset.onclick=()=>resetUnlockBaseline(i);
+    list.appendChild(d);
+  });
+  const sum=document.createElement("div");
+  sum.className="unlockSummary "+(status.ready?"ready":"");
+  sum.textContent=`追加条件：${status.metCount} / ${status.total} 達成（${x.unlockMode==="any"?"どれか1つ":"すべて"}）`;
+  list.appendChild(sum);
+}
+function addUnlockCondition(){
+  const x=node(selected);if(!x)return;
+  const type=document.getElementById("newUnlockType").value;
+  const targetId=document.getElementById("newUnlockTarget").value;
+  if(!targetId||!node(targetId))return toast("対象スキルを選んでください");
+  const goal=type==="skill_acquired"?1:Math.max(1,+document.getElementById("newUnlockGoal").value||1);
+  x.unlockConditions=x.unlockConditions||[];
+  x.unlockConditions.push({
+    id:uid("cond"),type,targetId,goal,
+    baseline:snapshotForCondition(type,targetId),
+    baselineLevels:type==="subtree_level_gain"
+      ?subtreeLevelBaselineMap(targetId)
+      :type==="desc_level_gain"
+        ?descendantLevelBaselineMap(targetId)
+        :null
+  });
+  save();renderUnlockConditions();toast("解放条件を追加しました");
+}
+function removeUnlockCondition(index){
+  const x=node(selected);if(!x)return;
+  x.unlockConditions=(x.unlockConditions||[]).filter((_,i)=>i!==index);
+  save();renderUnlockConditions();
+}
+function resetUnlockBaseline(index){
+  const x=node(selected),c=x?.unlockConditions?.[index];if(!c)return;
+  c.baseline=snapshotForCondition(c.type,c.targetId);
+  c.baselineLevels=c.type==="subtree_level_gain"
+    ?subtreeLevelBaselineMap(c.targetId)
+    :c.type==="desc_level_gain"
+      ?descendantLevelBaselineMap(c.targetId)
+      :null;
+  save();renderUnlockConditions();toast("基準値を現在にリセットしました");
+}
+function saveUnlockModeOnly(){
+  const x=node(selected);if(!x)return;
+  x.unlockMode=document.getElementById("unlockMode").value==="any"?"any":"all";
+  save();renderUnlockConditions();
+}
+function unlockProgressHTML(x){
+  const st=unlockStatus(x);
+  const parentLine=x.parentId
+    ?`<div class="ctxCondition ${st.parentOk?"met":""}"><b>${st.parentOk?"✅":"⬜"} 親スキルを習得</b><div class="conditionMeta">${esc(parent(x)?.name||"親スキル不明")}：${st.parentOk?"達成":"未達成"}</div><div class="conditionBar"><div class="conditionFill" style="width:${st.parentOk?100:0}%"></div></div></div>`
+    :"";
+  const custom=st.conds.map((ev,i)=>{
+    const c=x.unlockConditions[i],t=node(c.targetId);
+    return `<div class="ctxCondition ${ev.met?"met":""}"><b>${ev.met?"✅":"⬜"} ${esc(ev.label)}</b><div class="conditionMeta">対象：${esc(t?t.name:"不明")}<br>${esc(ev.detail)}</div><div class="conditionBar"><div class="conditionFill" style="width:${ev.pct}%"></div></div></div>`;
+  }).join("");
+  const ready=st.ready;
+  const modeText=st.total?`追加条件は「${x.unlockMode==="any"?"どれか1つ":"すべて"}」で判定`:"追加条件なし";
+  return `<div style="margin-top:8px"><b>🔓 解放条件の進捗</b><div class="muted">${modeText}</div>${parentLine}${custom}<div class="unlockSummary ${ready?"ready":""}">${ready?"✅ 解放条件達成：習得可能":"🔒 まだ解放条件を満たしていません"}</div></div>`;
+}
+
+
+function growthRule(x,kind){
+  if(!x.growthRules)x.growthRules={};
+  x.growthRules[kind]=normalizeGrowthRule(x.growthRules[kind],kind);
+  return x.growthRules[kind];
+}
+function repeatConditionCurrent(c){
+  const ev=evaluateUnlockCondition(c);
+  return Math.max(0,+ev.current||0);
+}
+function repeatGrowthInfo(x,kind){
+  const r=growthRule(x,kind);
+  if(kind!=="xp"||r.repeatMode!=="repeat"){
+    return {repeat:false,valid:false,totalCycles:0,availableCycles:0,rewardXP:0,remainder:0,goal:0,current:0};
+  }
+  // Repeating rewards need exactly one quantitative accumulation condition.
+  const quantitative=["desc_level_gain","subtree_level_gain","skill_level_gain","desc_acquired_gain"];
+  if(r.conditions.length!==1||!quantitative.includes(r.conditions[0].type)){
+    return {repeat:true,valid:false,totalCycles:0,availableCycles:0,rewardXP:0,remainder:0,goal:0,current:0};
+  }
+  const c=r.conditions[0];
+  const goal=Math.max(1,+c.goal||1);
+  const current=repeatConditionCurrent(c);
+  const totalCycles=Math.floor(current/goal);
+  const availableCycles=Math.max(0,totalCycles-(+r.rewardedCycles||0));
+  return {
+    repeat:true,valid:true,totalCycles,availableCycles,
+    rewardXP:availableCycles*Math.max(1,+r.amount||1),
+    remainder:current%goal,goal,current
+  };
+}
+function growthStatus(x,kind){
+  const r=growthRule(x,kind);
+  const conds=(r.conditions||[]).map(c=>evaluateUnlockCondition(c));
+  const rep=repeatGrowthInfo(x,kind);
+  const conditionsOk=rep.repeat
+    ?(rep.valid&&rep.availableCycles>0)
+    :(conds.length>0 && (r.mode==="any"?conds.some(c=>c.met):conds.every(c=>c.met)));
+  const available=r.enabled && x.acquired &&
+    (rep.repeat ? conditionsOk : (!r.claimed&&conditionsOk)) &&
+    !(kind==="level"&&isMaxed(x));
+  return {
+    enabled:r.enabled,
+    claimed:r.claimed,
+    conds,
+    metCount:conds.filter(c=>c.met).length,
+    total:conds.length,
+    conditionsOk,
+    available,
+    repeat:rep
+  };
+}
+function populateGrowthTarget(kind){
+  const sel=document.getElementById(kind+"GrowthTarget");
+  if(!sel)return;
+  const prev=sel.value;
+  const candidates=data.nodes.slice().sort((a,b)=>skillOptionLabel(a).localeCompare(skillOptionLabel(b),"ja"));
+  sel.innerHTML=candidates.map(x=>`<option value="${attr(x.id)}">${esc(skillOptionLabel(x))}</option>`).join("");
+  if(candidates.some(x=>x.id===prev))sel.value=prev;
+  else if(node(selected))sel.value=selected;
+}
+function updateGrowthBuilder(kind){
+  const type=document.getElementById(kind+"GrowthType")?.value;
+  const field=document.getElementById(kind+"GrowthGoalField");
+  const targetField=document.getElementById(kind+"GrowthTargetField");
+  const lab=document.getElementById(kind+"GrowthGoalLabel");
+  const hint=document.getElementById(kind+"GrowthHint");
+  if(!field||!lab||!hint)return;
+  const selfXp=type==="self_xp_max";
+  field.style.display=(type==="skill_acquired"||selfXp)?"none":"";
+  if(targetField)targetField.style.display=selfXp?"none":"";
+  if(type==="desc_acquired_gain"){
+    lab.textContent="新たに習得するスキル数";
+    hint.textContent="指定スキル以下で、基準時点から新たに何個習得したかを数えます。";
+  }else if(type==="desc_level_gain"){
+    lab.textContent="必要な配下合計Lv上昇";
+    hint.textContent="指定したスキル自身は数えず、その配下だけのLv上昇を合計します。XPの報酬方式を「条件量ごとに繰り返し」にすると、例：10Lv上昇ごとにXP+10、のように使えます。";
+  }else if(type==="subtree_level_gain"){
+    lab.textContent="必要な合計Lv上昇";
+    hint.textContent="指定スキル自身＋配下全体で、基準時点から実際に上がったLvを合計します。";
+  }else if(type==="skill_level_gain"){
+    lab.textContent="必要なLv上昇";
+    hint.textContent="指定した1スキルが、基準時点から何Lv上がったかを数えます。";
+  }else if(type==="skill_level_at_least"){
+    lab.textContent="必要Lv";
+    hint.textContent="指定スキルがこのLv以上なら条件達成です。";
+  }else if(type==="self_xp_max"){
+    lab.textContent="経験値MAX";
+    hint.textContent="このレベルアップルールを設定している当スキル自身の経験値が最大になると達成です。レベルアップ時に必要経験値分を消費し、超過分は残ります。";
+  }else{
+    lab.textContent="必要数";
+    hint.textContent="指定スキルを習得したら条件達成です。";
+  }
+}
+function addGrowthCondition(kind){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind);
+  const type=document.getElementById(kind+"GrowthType").value;
+  const targetId=type==="self_xp_max"?x.id:document.getElementById(kind+"GrowthTarget").value;
+  if(!targetId||!node(targetId))return toast("対象スキルを選んでください");
+  const goal=(type==="skill_acquired"||type==="self_xp_max")?1:Math.max(1,+document.getElementById(kind+"GrowthGoal").value||1);
+  r.conditions.push({
+    id:uid("cond"),type,targetId,goal,
+    baseline:snapshotForCondition(type,targetId),
+    baselineLevels:type==="subtree_level_gain"
+      ?subtreeLevelBaselineMap(targetId)
+      :type==="desc_level_gain"
+        ?descendantLevelBaselineMap(targetId)
+        :null
+  });
+  r.claimed=false;
+  r.rewardedCycles=0;
+  save();renderGrowthRules();toast((kind==="xp"?"XP":"Lv")+"条件を追加しました");
+}
+function removeGrowthCondition(kind,index){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind);
+  r.conditions=r.conditions.filter((_,i)=>i!==index);
+  r.claimed=false;
+  r.rewardedCycles=0;
+  save();renderGrowthRules();
+}
+function resetOneGrowthBaseline(kind,index){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind),c=r.conditions[index];if(!c)return;
+  c.baseline=snapshotForCondition(c.type,c.targetId);
+  c.baselineLevels=c.type==="subtree_level_gain"
+    ?subtreeLevelBaselineMap(c.targetId)
+    :c.type==="desc_level_gain"
+      ?descendantLevelBaselineMap(c.targetId)
+      :null;
+  r.claimed=false;
+  r.rewardedCycles=0;
+  save();renderGrowthRules();toast("この条件の基準を現在値に更新しました");
+}
+function saveGrowthSettings(kind){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind);
+  r.enabled=document.getElementById(kind+"GrowthEnabled").value==="true";
+  r.mode=document.getElementById(kind+"GrowthMode").value==="any"?"any":"all";
+  if(kind==="xp"){
+    const repeatEl=document.getElementById("xpGrowthRepeat");
+    const next=repeatEl?.value==="repeat"?"repeat":"once";
+    if(next!==r.repeatMode){
+      r.repeatMode=next;
+      r.claimed=false;
+      r.rewardedCycles=0;
+    }
+  }
+  r.amount=Math.max(1,+document.getElementById(kind+"GrowthAmount").value||(kind==="xp"?10:1));
+  save();renderGrowthRules();
+}
+function resetGrowthRule(kind){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind);
+  r.conditions.forEach(c=>{
+    c.baseline=snapshotForCondition(c.type,c.targetId);
+    c.baselineLevels=c.type==="subtree_level_gain"?subtreeLevelBaselineMap(c.targetId):null;
+  });
+  r.claimed=false;
+  r.rewardedCycles=0;
+  save();renderGrowthRules();toast("基準を現在値に更新しました");
+}
+function claimGrowth(kind){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind),st=growthStatus(x,kind);
+  if(!r.enabled)return toast("この成長ルールは無効です");
+  if(!x.acquired)return toast("未取得スキルには成長報酬を適用できません");
+  if(r.claimed)return toast("このルールの報酬は受取済みです。再利用する場合は基準を更新してください");
+  if(!st.conditionsOk)return toast("まだ成長条件を満たしていません");
+  if(kind==="level"){
+    if(isMaxed(x))return toast("このスキルはレベル上限です");
+    const before=x.level;
+    const xpMaxMet=(r.conditions||[]).some(c=>c.type==="self_xp_max"&&evaluateUnlockCondition(c).met);
+    x.level=Math.min(x.maxLevel,Math.max(1,+x.level||1)+Math.max(1,+r.amount||1));
+    const gained=x.level-before;
+    if(xpMaxMet){
+      const cost=Math.max(1,+x.goal||1);
+      x.cur=Math.max(0,(+x.cur||0)-cost);
+    }
+    r.claimed=true;
+    save();render();toast(`Lv +${gained} を反映しました${xpMaxMet?"（経験値を消費）":""}`);
+  }else{
+    const rep=repeatGrowthInfo(x,"xp");
+    if(r.repeatMode==="repeat"){
+      if(!rep.valid)return toast("繰り返し報酬は、数量を積み上げる条件を1つだけ設定してください");
+      if(rep.availableCycles<=0)return toast("まだ次のXP報酬分まで進んでいません");
+      const reward=rep.availableCycles*Math.max(1,+r.amount||1);
+      x.cur=Math.max(0,(+x.cur||0)+reward);
+      r.rewardedCycles=(+r.rewardedCycles||0)+rep.availableCycles;
+      r.claimed=false;
+      save();render();toast(`XP +${reward} を反映しました（${rep.availableCycles}回分）`);
+    }else{
+      x.cur=Math.max(0,(+x.cur||0)+Math.max(1,+r.amount||1));
+      r.claimed=true;
+      save();render();toast(`XP +${r.amount} を反映しました`);
+    }
+  }
+}
+function growthRuleProgressHTML(x,kind){
+  const r=growthRule(x,kind),st=growthStatus(x,kind);
+  if(!r.enabled)return "";
+  const title=kind==="xp"?`✨ XP獲得 +${r.amount}`:`⬆️ レベル +${r.amount}`;
+  const condHTML=st.conds.map((ev,i)=>{
+    const c=r.conditions[i],t=node(c.targetId);
+    return `<div class="ctxCondition ${ev.met?"met":""}"><b>${ev.met?"✅":"⬜"} ${esc(ev.label)}</b><div class="conditionMeta">対象：${esc(t?t.name:"不明")}<br>${esc(ev.detail)}</div><div class="conditionBar"><div class="conditionFill" style="width:${ev.pct}%"></div></div></div>`;
+  }).join("");
+  let state,sub;
+  if(kind==="xp"&&r.repeatMode==="repeat"){
+    const rep=st.repeat;
+    sub=rep.valid?`「${rep.goal}」進むごとに XP +${r.amount}`:"繰り返し報酬は数量条件を1つだけ設定";
+    state=rep.valid
+      ?(rep.availableCycles>0?`${rep.availableCycles}回分・XP +${rep.rewardXP} 受取可能`:`次まで ${rep.goal-rep.remainder}（現在 ${rep.remainder}/${rep.goal}）`)
+      :"設定を確認してください";
+  }else{
+    sub=`${r.mode==="any"?"どれか1つ":"すべて"}の条件を満たす`;
+    state=r.claimed?"受取済み":st.available?"受取可能":`${st.metCount}/${st.total} 条件達成`;
+  }
+  return `<div class="growthContext"><b>${title}</b><div class="muted">${esc(sub)}</div>${condHTML}<div class="${st.available?"claimReady":r.claimed?"claimedText":"muted"}">${esc(state)}</div></div>`;
+}
+function renderGrowthRule(kind){
+  const x=node(selected);if(!x)return;
+  const r=growthRule(x,kind),st=growthStatus(x,kind);
+  document.getElementById(kind+"GrowthEnabled").value=String(!!r.enabled);
+  document.getElementById(kind+"GrowthMode").value=r.mode||"all";
+  if(kind==="xp"){
+    const repeatEl=document.getElementById("xpGrowthRepeat");
+    if(repeatEl)repeatEl.value=r.repeatMode||"once";
+  }
+  document.getElementById(kind+"GrowthAmount").value=r.amount;
+  document.getElementById(kind+"RewardBadge").textContent=kind==="xp"
+    ?(r.repeatMode==="repeat"?`+${r.amount} XP / 1単位`:`+${r.amount} XP`)
+    :`+${r.amount} Lv`;
+  populateGrowthTarget(kind);
+  updateGrowthBuilder(kind);
+
+  const box=document.getElementById(kind==="xp"?"xpGrowthRule":"levelGrowthRule");
+  box.classList.toggle("ready",st.available);
+  box.classList.toggle("claimed",r.claimed);
+
+  const list=document.getElementById(kind+"GrowthConditions");
+  list.innerHTML="";
+  if(!r.conditions.length){
+    list.innerHTML='<div class="muted">条件なし。条件を1つ以上追加すると使用できます。</div>';
+  }else{
+    r.conditions.forEach((c,i)=>{
+      const ev=evaluateUnlockCondition(c),t=node(c.targetId);
+      const d=document.createElement("div");
+      d.className="conditionItem "+(ev.met?"met":"");
+      d.innerHTML=`<div class="conditionTitle">${ev.met?"✅":"⬜"} ${esc(ev.label)}</div>
+        <div class="conditionMeta">対象：${esc(t?t.name:"不明")}<br>${esc(ev.detail)}</div>
+        <div class="conditionBar"><div class="conditionFill" style="width:${ev.pct}%"></div></div>
+        <div class="conditionActions">
+          ${["desc_acquired_gain","desc_level_gain","subtree_level_gain","skill_level_gain"].includes(c.type)?`<button class="btn sm" data-a="reset">基準を今にリセット</button>`:""}
+          <button class="btn sm danger" data-a="delete">削除</button>
+        </div>`;
+      d.querySelector('[data-a="delete"]').onclick=()=>removeGrowthCondition(kind,i);
+      const rb=d.querySelector('[data-a="reset"]');if(rb)rb.onclick=()=>resetOneGrowthBaseline(kind,i);
+      list.appendChild(d);
+    });
+    const sum=document.createElement("div");
+    sum.className="unlockSummary "+(st.available?"ready":"");
+    if(kind==="xp"&&r.repeatMode==="repeat"){
+      const rep=st.repeat;
+      sum.textContent=!rep.valid
+        ?"繰り返し報酬では、数量条件を1つだけ設定してください"
+        :rep.availableCycles>0
+          ?`${rep.availableCycles}回分達成 → XP +${rep.rewardXP} 受取可能`
+          :`次の報酬まで ${rep.goal-rep.remainder}（${rep.remainder}/${rep.goal}）`;
+    }else{
+      sum.textContent=r.claimed
+        ?"報酬は受取済みです"
+        :`${st.metCount} / ${st.total} 条件達成（${r.mode==="any"?"どれか1つ":"すべて"}）${st.available?" → 受取可能":""}`;
+    }
+    list.appendChild(sum);
+  }
+
+  const claim=document.getElementById(kind+"ClaimBtn");
+  claim.disabled=!st.available;
+  if(kind==="xp"&&r.repeatMode==="repeat"){
+    const rep=st.repeat;
+    claim.textContent=st.available?`XP +${rep.rewardXP} を受け取る（${rep.availableCycles}回分）`:"XPを受け取る";
+    document.getElementById(kind+"ResetBtn").style.display="";
+    document.getElementById(kind+"ResetBtn").textContent="累積基準を今にリセット";
+  }else{
+    claim.textContent=kind==="xp"?(st.available?`XP +${r.amount} を受け取る`:"XPを受け取る"):(st.available?`Lv +${r.amount} を反映`:"レベルを上げる");
+    document.getElementById(kind+"ResetBtn").style.display=r.claimed?"":"none";
+    document.getElementById(kind+"ResetBtn").textContent="基準を今に更新して再利用";
+  }
+}
+function renderGrowthRules(){
+  renderGrowthRule("xp");
+  renderGrowthRule("level");
+}
+
+function fillEditor(){
+  const x=node(selected);if(!x)return;
+  const p=pos(x.id);
+  document.getElementById("editTitle").textContent=x.name+(x.acquired?(isMaxed(x)?" MAX":` Lv${x.level}`):" 🔒");
+  const mobileTitle=document.getElementById("mobileEditorTitle");
+  if(mobileTitle)mobileTitle.textContent=x.name+" を編集";
+  for(const [id,v] of [["name",x.name],["icon",x.icon],["category",x.category],["level",x.level],["maxLevel",x.maxLevel],["acquired",String(!!x.acquired)],["desc",x.description],["cond",x.condition],["cur",x.cur],["goal",x.goal],["unit",x.unit],["x",p.x],["y",p.y]])document.getElementById(id).value=v??"";
+  document.getElementById("parentPill").textContent="親："+(parent(x)?.name||"なし");
+  document.getElementById("childPill").textContent="分岐："+kids(x.id).length;
+  document.getElementById("treePill").textContent="ツリー："+(tree().name||"全体");
+  document.getElementById("cats").innerHTML=categories().filter(c=>c!=="総合").map(c=>`<option value="${attr(c)}">`).join("");
+  const delDetailBtn=document.getElementById("deleteDetailBtn");
+  if(delDetailBtn){
+    const t=tree();
+    const ownsDetail=!!x.detailTreeId;
+    const isDetailRoot=currentTreeId!=="main" && t?.rootSkillId===x.id;
+    delDetailBtn.style.display=(ownsDetail||isDetailRoot)?"":"none";
+    delDetailBtn.textContent=isDetailRoot?"この詳細ツリーを削除":"詳細ツリー削除";
+  }
+  previewProgress();
+  renderUnlockConditions();
+  renderGrowthRules();
+}
+function previewProgress(){
+  const acq=document.getElementById("acquired").value==="true";
+  const lv=Math.max(1,+document.getElementById("level").value||1),max=Math.max(1,+document.getElementById("maxLevel").value||10);
+  const c=Math.max(0,+document.getElementById("cur").value||0),g=Math.max(1,+document.getElementById("goal").value||100),u=document.getElementById("unit").value.trim()||"XP";
+  const maxed=acq&&lv>=max;
+  const p=!acq?0:maxed?100:Math.max(0,Math.min(100,Math.round(c/g*100)));
+  const card=document.getElementById("editorProgress");card.classList.toggle("max",maxed);
+  document.getElementById("editorPct").textContent=!acq?"🔒":maxed?"MAX":p+"%";
+  document.getElementById("editorFill").style.width=p+"%";
+  document.getElementById("editorProgressText").textContent=!acq?"未取得":maxed?`Lv${lv} / 上限 ${max}`:`${c} / ${g} ${u}`;
+  document.getElementById("editorRemain").textContent=!acq?"前提スキルを習得すると進捗を開始できます":maxed?"レベル上限に到達しています":`次のLvまであと ${Math.max(0,g-c)} ${u}`;
+}
+function descendants(id,tid=currentTreeId){
+  const out=[];(function walk(p){kids(p,tid).forEach(c=>{out.push(c.id);walk(c.id)})})(id);return out;
+}
+function saveSelected(){
+  const x=node(selected);if(!x)return;
+  const oldAcq=x.acquired;
+  x.name=document.getElementById("name").value.trim()||"無名スキル";
+  x.icon=document.getElementById("icon").value.trim()||"⭐";
+  x.category=document.getElementById("category").value.trim()||"その他";
+  x.level=Math.max(1,+document.getElementById("level").value||1);
+  x.maxLevel=Math.max(1,+document.getElementById("maxLevel").value||10);
+  x.acquired=document.getElementById("acquired").value==="true";
+  x.description=document.getElementById("desc").value.trim();
+  x.condition=document.getElementById("cond").value.trim();
+  x.cur=Math.max(0,+document.getElementById("cur").value||0);
+  x.goal=Math.max(1,+document.getElementById("goal").value||100);
+  x.unit=document.getElementById("unit").value.trim()||"XP";
+  const nx=Math.max(0,+document.getElementById("x").value||0),ny=Math.max(0,+document.getElementById("y").value||0);
+  const oldp=pos(x.id);if(nx!==oldp.x||ny!==oldp.y)setPos(x.id,nx,ny,true);
+  if(oldAcq&&!x.acquired){
+    const d=descendants(x.id).filter(i=>node(i)?.acquired);
+    if(d.length){
+      if(confirm(`この先の習得済み ${d.length} 件も未取得に戻しますか？`))d.forEach(i=>node(i).acquired=false);
+      else x.acquired=true;
+    }
+  }
+  save();ensureLayout();render();toast("保存しました");
+}
+function bump(v){
+  const x=node(selected);if(!x?.acquired)return toast("未取得スキルの進捗は増やせません");
+  if(isMaxed(x))return toast("このスキルはレベル上限です");
+  x.cur=Math.max(0,(+x.cur||0)+v);save();render();
+}
+function canAcquire(x){return x.acquired||unlockStatus(x).ready}
+function toggleAcquire(id){
+  const x=node(id);if(!x)return;
+  if(!x.acquired){
+    if(!canAcquire(x))return toast("まだ解放条件を満たしていません");
+    x.acquired=true;toast(`${x.name} を習得しました`);
+  }else{
+    const d=descendants(x.id).filter(i=>node(i)?.acquired);
+    if(d.length&&!confirm(`この先の習得済み ${d.length} 件も未取得に戻します。続けますか？`))return;
+    x.acquired=false;d.forEach(i=>node(i).acquired=false);toast(`${x.name} を未取得に戻しました`);
+  }
+  save();hideCtx();ensureLayout();render();
+}
+function newSkillBase(parentId){
+  const p=node(parentId);
+  return {id:uid(),treeId:currentTreeId,name:"新しいスキル",icon:"⭐",category:(p?.category&&p.category!=="総合")?p.category:"その他",level:1,maxLevel:10,acquired:false,description:"",condition:"",parentId:parentId||"",cur:0,goal:100,unit:"XP",detailTreeId:null,unlockMode:"all",unlockConditions:[],growthRules:{xp:normalizeGrowthRule(null,"xp"),level:normalizeGrowthRule(null,"level")}};
+}
+function makeChild(pid){
+  const p=node(pid);if(!p)return;
+  const x=newSkillBase(pid);data.nodes.push(x);selected=x.id;
+  save();autoArrange(false,false);render();toast("分岐スキルを追加しました");
+}
+function addChildSelected(){if(!node(selected))return toast("親にするスキルを選択してください");makeChild(selected)}
+function startPickNew(){pick={type:"new"};document.getElementById("banner").classList.add("show");renderTree()}
+function startPickChange(){if(!selected)return;pick={type:"change",id:selected};document.getElementById("banner").classList.add("show");renderTree()}
+function finishPick(pid){
+  const m=pick;pick=null;document.getElementById("banner").classList.remove("show");
+  if(m.type==="new")makeChild(pid);
+  else{
+    if(pid===m.id)return toast("自分自身は親にできません");
+    if(descendants(m.id).includes(pid))return toast("子孫は親にできません");
+    const x=node(m.id);
+    if(nodeTreeId(x)!==currentTreeId)return toast("この詳細ツリーの頭スキル自体は親変更できません");
+    x.parentId=pid;
+    delete layout()[x.id];
+    save();autoArrange(false,false);render();toast("親スキルを変更しました");
+  }
+}
+function cancelPick(){pick=null;document.getElementById("banner").classList.remove("show");renderTree()}
+function addRootFuture(){
+  const x=newSkillBase("");data.nodes.push(x);selected=x.id;save();autoArrange(false,false);render();
+}
+function openOrCreateDetail(){const x=node(selected);if(!x)return;if(x.detailTreeId)openTree(x.detailTreeId);else createDetailTree(x.id)}
+function createDetailTree(skillId){
+  const x=node(skillId);if(!x)return;
+  if(x.detailTreeId)return openTree(x.detailTreeId);
+  const tid=uid("tree");
+  data.trees[tid]={id:tid,name:x.name,rootSkillId:x.id,parentTreeId:currentTreeId,parentSkillId:x.id};
+  x.detailTreeId=tid;save();openTree(tid);toast(`${x.name} の詳細ツリーを作成しました`);
+}
+
+function collectDetailTreeIds(rootTid){
+  const out=[];
+  const seen=new Set();
+  function walk(tid){
+    if(!tid||seen.has(tid)||!data.trees[tid])return;
+    seen.add(tid);
+    const own=treeOwnNodes(tid);
+    own.forEach(x=>{
+      if(x.detailTreeId)walk(x.detailTreeId);
+    });
+    out.push(tid);
+  }
+  walk(rootTid);
+  return out;
+}
+
+function deleteDetailTreeById(tid){
+  const t=data.trees[tid];
+  if(!t||tid==="main")return false;
+
+  const parentTid=t.parentTreeId||"main";
+  const parentSkillId=t.parentSkillId||t.rootSkillId;
+  const parentSkill=node(parentSkillId);
+
+  const treeIds=collectDetailTreeIds(tid);
+  const treeSet=new Set(treeIds);
+
+  // Count/delete only nodes that belong to the detail trees themselves.
+  // The root skill shown at the top belongs to its parent tree and must remain.
+  const deleteNodeIds=new Set(
+    data.nodes.filter(x=>treeSet.has(nodeTreeId(x))).map(x=>x.id)
+  );
+
+  data.nodes=data.nodes.filter(x=>!deleteNodeIds.has(x.id));
+
+  // Remove layouts for deleted trees and any layout entries for deleted nodes.
+  for(const key of Object.keys(data.layouts)){
+    const keyTid=key.split("::")[0];
+    if(treeSet.has(keyTid)){
+      delete data.layouts[key];
+      continue;
+    }
+    for(const nid of deleteNodeIds) delete data.layouts[key][nid];
+  }
+
+  for(const dtid of treeIds) delete data.trees[dtid];
+
+  // Disconnect the preserved parent/root skill from the deleted detail tree.
+  if(parentSkill && parentSkill.detailTreeId===tid) parentSkill.detailTreeId=null;
+
+  // Also clear any stale references that may point at deleted nested trees.
+  for(const x of data.nodes){
+    if(x.detailTreeId && treeSet.has(x.detailTreeId)) x.detailTreeId=null;
+  }
+
+  if(treeSet.has(currentTreeId)){
+    currentTreeId=data.trees[parentTid]?parentTid:"main";
+    currentTab="総合";
+    setHashTree(currentTreeId);
+    selected=parentSkill && node(parentSkill.id)?parentSkill.id:firstNodeId();
+  }else if(!node(selected)){
+    selected=firstNodeId();
+  }
+
+  save();
+  ensureLayout();
+  render();
+  centerView();
+  return true;
+}
+
+function deleteSelectedDetailTree(){
+  const x=node(selected);
+  const t=tree();
+  let tid=null;
+  let label="";
+
+  if(currentTreeId!=="main" && t?.rootSkillId===selected){
+    tid=currentTreeId;
+    label=t.name||x?.name||"詳細ツリー";
+  }else if(x?.detailTreeId){
+    tid=x.detailTreeId;
+    label=data.trees[tid]?.name||x.name||"詳細ツリー";
+  }
+
+  if(!tid)return toast("このスキルには詳細ツリーがありません");
+
+  const treeIds=collectDetailTreeIds(tid);
+  const treeSet=new Set(treeIds);
+  const nodeCount=data.nodes.filter(n=>treeSet.has(nodeTreeId(n))).length;
+  const nestedCount=Math.max(0,treeIds.length-1);
+
+  const extra=nestedCount?`\n入れ子の詳細ツリー ${nestedCount} 個も一緒に削除されます。`:"";
+  if(!confirm(`「${label}」の詳細ツリーを削除しますか？\n詳細ツリー内のスキル ${nodeCount} 個が削除されます。\n元のスキル「${x?.name||label}」自体は残ります。${extra}`))return;
+
+  if(deleteDetailTreeById(tid)) toast("詳細ツリーを削除しました");
+}
+function openTree(tid){
+  if(!data.trees[tid])return toast("ツリーが見つかりません");
+  currentTreeId=tid;currentTab="総合";selected=firstNodeId();setHashTree(tid);ensureLayout();render();centerView();
+}
+function goParentTree(){
+  const t=tree();if(!t?.parentTreeId)return;
+  openTree(t.parentTreeId);
+  if(t.parentSkillId)selected=t.parentSkillId;
+  render();
+}
+function openTreeNewWindow(tid){
+  const base=location.href.split("#")[0];
+  const w=window.open(base+"#tree="+encodeURIComponent(tid),"_blank");
+  if(!w)toast("ポップアップがブロックされました");
+}
+function route(x){
+  const a=[x],seen=new Set([x.id]);let p=parent(x);
+  while(p&&!seen.has(p.id)){a.unshift(p);seen.add(p.id);if(currentTreeId!=="main"&&p.id===tree().rootSkillId)break;p=parent(p)}
+  return a;
+}
+function renderFuture(){
+  const l=document.getElementById("futureList"),q=(document.getElementById("search").value||"").toLowerCase();
+  const a=hidden().filter(x=>!q||[x.name,x.description,x.condition,x.category].join(" ").toLowerCase().includes(q));
+  if(!a.length){l.innerHTML='<div class="empty">該当なし</div>';return}
+  l.innerHTML="";
+  a.sort((a,b)=>route(a).length-route(b).length||a.name.localeCompare(b.name,"ja")).forEach(x=>{
+    const d=document.createElement("div");d.className="future";
+    const ust=unlockStatus(x);
+    d.innerHTML=`<strong>🔒 ${esc(x.name)}</strong><div class="futureMeta">カテゴリ：${esc(x.category)} / Lv${esc(x.level)}<br>前提：${esc(parent(x)?.name||"なし")}<br>追加条件：${ust.metCount}/${ust.total} 達成<br>経路：${esc(route(x).map(v=>v.name).join(" → "))}</div><div class="futureBtns"><button class="btn sm" data-a="e">編集</button><button class="btn sm" data-a="c">この先を追加</button></div>`;
+    d.querySelector('[data-a=e]').onclick=()=>{selected=x.id;render();toast("右側で編集できます")};
+    d.querySelector('[data-a=c]').onclick=()=>makeChild(x.id);
+    l.appendChild(d);
+  });
+}
+function toggleDrawer(){document.getElementById("drawer").classList.toggle("open");renderFuture()}
+function showCtx(cx,cy,id){
+  const x=node(id),m=document.getElementById("ctx"),per=progressPct(x),mx=isMaxed(x);
+  m.style.left=Math.max(8,Math.min(cx,innerWidth-345))+"px";m.style.top=Math.max(64,Math.min(cy,innerHeight-500))+"px";
+  const isDetailRoot=currentTreeId!=="main"&&tree().rootSkillId===x.id;
+  const detailBtn=x.detailTreeId
+    ?`<button class="btn sm" onclick="openTree('${x.detailTreeId}');hideCtx()">▣ 詳細ツリーを開く</button><button class="btn sm" onclick="openTreeNewWindow('${x.detailTreeId}')">↗ 別ウィンドウ</button><button class="btn sm danger" onclick="selected='${x.id}';hideCtx();deleteSelectedDetailTree()">詳細ツリー削除</button>`
+    :isDetailRoot
+      ?`<button class="btn sm danger" onclick="selected='${x.id}';hideCtx();deleteSelectedDetailTree()">この詳細ツリーを削除</button>`
+      :`<button class="btn sm" onclick="createDetailTree('${x.id}');hideCtx()">＋ 詳細ツリー作成</button>`;
+  const unlockHTML=!x.acquired?unlockProgressHTML(x):"";
+  const growthHTML=x.acquired?(growthRuleProgressHTML(x,"xp")+growthRuleProgressHTML(x,"level")):"";
+  m.innerHTML=`<h4>${x.acquired?esc(x.icon||"⭐"):"🔒"} ${esc(x.name)} ${x.acquired?(mx?`Lv${x.level} MAX`:`Lv${x.level}/${x.maxLevel}`):(unlockStatus(x).ready?'<span class="availableText">解放可能</span>':"未取得")}</h4><div class="muted">親：${esc(parent(x)?.name||"なし")} / 分岐：${kids(x.id).length}</div><div style="margin-top:8px"><b>内容</b><div class="muted">${esc(x.description||"未設定")}</div></div><div style="margin-top:8px"><b>レベルアップ条件</b><div class="muted">${esc(x.condition||"未設定")}</div></div>${unlockHTML}${growthHTML}<div class="bar"><div class="fill" style="width:${per}%"></div></div><div class="ptext">${!x.acquired?(unlockStatus(x).ready?"解放条件達成・習得可能":"解放条件を進行中"):mx?"MAX":`${x.cur||0} / ${x.goal||100} ${esc(x.unit||"XP")} ・ ${per}%`}</div><div class="ctxBtns"><button class="btn sm primary" onclick="toggleAcquire('${x.id}')">${x.acquired?"未取得に戻す":"習得する"}</button><button class="btn sm" onclick="makeChild('${x.id}');hideCtx()">＋ 分岐</button>${detailBtn}<button class="btn sm" onclick="hideCtx();openMobileEditorForSelected()">編集画面へ</button><button class="btn sm" onclick="duplicateNode('${x.id}')">複製</button><button class="btn sm danger" onclick="deleteNode('${x.id}')">削除</button><button class="btn sm" onclick="hideCtx()">閉じる</button></div>`;
+  m.classList.add("show");
+}
+function hideCtx(){document.getElementById("ctx").classList.remove("show")}
+function duplicateNode(id){
+  const s=node(id);if(!s)return;
+  const x=cp(s);x.id=uid();x.name=s.name+" copy";x.treeId=currentTreeId;x.acquired=false;x.detailTreeId=null;x.unlockConditions=(x.unlockConditions||[]).map(c=>({...c,id:uid("cond")}));x.growthRules={xp:normalizeGrowthRule(x.growthRules?.xp,"xp"),level:normalizeGrowthRule(x.growthRules?.level,"level")};x.growthRules.xp.conditions=x.growthRules.xp.conditions.map(c=>({...c,id:uid("cond"),targetId:c.type==="self_xp_max"?x.id:c.targetId}));x.growthRules.level.conditions=x.growthRules.level.conditions.map(c=>({...c,id:uid("cond"),targetId:c.type==="self_xp_max"?x.id:c.targetId}));x.growthRules.xp.claimed=false;x.growthRules.xp.rewardedCycles=0;x.growthRules.level.claimed=false;x.growthRules.level.rewardedCycles=0;
+  data.nodes.push(x);selected=x.id;save();hideCtx();autoArrange(false,false);render();toast("複製しました");
+}
+function deleteSelected(){deleteNode(selected)}
+function deleteNode(id){
+  const x=node(id);if(!x)return;
+  if(currentTreeId!=="main"&&tree().rootSkillId===id)return toast("詳細ツリーの頭スキルは親ツリー側で管理します");
+  if(x.detailTreeId)return toast("先に「詳細ツリー削除」で詳細ツリーを削除してください");
+  const k=kids(id);
+  if(!confirm(`${x.name} を削除します。${k.length?`直下の分岐 ${k.length} 件は親なしになります。`:""}`))return;
+  k.forEach(v=>v.parentId="");data.nodes=data.nodes.filter(v=>v.id!==id);
+  for(const key of Object.keys(data.layouts)){delete data.layouts[key][id]}
+  selected=firstNodeId();save();hideCtx();autoArrange(false,false);render();toast("削除しました");
+}
+function setZoom(value,cx=null,cy=null){
+  const vp=document.getElementById("viewport"),old=zoom,next=Math.max(.3,Math.min(1.8,Math.round(value*100)/100));
+  if(Math.abs(next-old)<.001)return;
+  let ux=null,uy=null;
+  if(vp&&cx!==null){const r=vp.getBoundingClientRect();ux=(vp.scrollLeft+(cx-r.left))/old;uy=(vp.scrollTop+(cy-r.top))/old}
+  zoom=next;data.zoom=zoom;canvasSize();drawLines();save();
+  if(vp&&ux!==null){const r=vp.getBoundingClientRect();vp.scrollLeft=ux*zoom-(cx-r.left);vp.scrollTop=uy*zoom-(cy-r.top)}
+}
+function changeZoom(d){const vp=document.getElementById("viewport"),r=vp?.getBoundingClientRect();setZoom(zoom+d,r?r.left+r.width/2:null,r?r.top+Math.min(r.height/2,350):null)}
+function fitTree(){
+  const vp=document.getElementById("viewport"),a=shown();if(!vp||!a.length)return;
+  const ps=a.map(x=>pos(x.id));
+  const minX=Math.min(...ps.map(p=>p.x)),maxX=Math.max(...ps.map(p=>p.x+W)),minY=Math.min(...ps.map(p=>p.y)),maxY=Math.max(...ps.map(p=>p.y+H));
+  const pad=70,cw=maxX-minX+pad*2,ch=maxY-minY+pad*2,aw=Math.max(200,vp.clientWidth-24),ah=Math.max(260,Math.min(innerHeight-160,900));
+  zoom=Math.round(Math.max(.3,Math.min(1.8,Math.min(aw/cw,ah/ch)))*100)/100;data.zoom=zoom;canvasSize();drawLines();save();
+  vp.scrollLeft=Math.max(0,(minX-pad)*zoom);vp.scrollTop=Math.max(0,(minY-pad)*zoom);toast(`全体表示：${Math.round(zoom*100)}%`);
+}
+function handleWheel(e){if(!e.ctrlKey)return;e.preventDefault();setZoom(zoom+(e.deltaY>0?-.06:.06),e.clientX,e.clientY)}
+function centerView(){
+  setTimeout(()=>{
+    const vp=document.getElementById("viewport"),a=shown();if(!vp||!a.length)return;
+    const xs=a.map(x=>pos(x.id).x+W/2),ys=a.map(x=>pos(x.id).y+H/2);
+    const cx=(Math.min(...xs)+Math.max(...xs))/2*zoom,cy=Math.min(...ys)*zoom;
+    vp.scrollLeft=Math.max(0,cx-vp.clientWidth/2);vp.scrollTop=Math.max(0,cy-80);
+  },0);
+}
+function exportStandaloneHTML(){
+  // Save any values currently typed in the editor first.
+  saveSelected();
+
+  const snapshotId="skilltree_snapshot_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7);
+  const embeddedData=JSON.stringify(data).replace(/</g,"\\u003c");
+  const embeddedView=JSON.stringify({
+    treeId:currentTreeId,
+    tab:currentTab,
+    selected:selected,
+    uiMode:uiMode
+  }).replace(/</g,"\\u003c");
+
+  // Clone the current document so the downloaded HTML contains the whole app.
+  const root=document.documentElement.cloneNode(true);
+
+  // Remove an older embedded bootstrap if this HTML was itself opened from a snapshot.
+  const oldBoot=root.querySelector("#embeddedSkilltreeData");
+  if(oldBoot)oldBoot.remove();
+
+  const boot=document.createElement("script");
+  boot.id="embeddedSkilltreeData";
+  boot.textContent=
+    'window.__EMBEDDED_STORAGE_KEY__='+JSON.stringify(snapshotId)+';'+
+    'window.__EMBEDDED_SKILLTREE_DATA__='+embeddedData+';'+
+    'window.__EMBEDDED_VIEW__='+embeddedView+';';
+  root.querySelector("head").prepend(boot);
+
+  const html="<!doctype html>\\n"+root.outerHTML;
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="skilltree-snapshot-"+new Date().toISOString().slice(0,10)+".html";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),700);
+  toast("現在の状態をHTMLに保存しました");
+}
+
+function exportData(){
+  saveSelected();
+  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download="skilltree-save-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const p=JSON.parse(r.result);
+      if(!Array.isArray(p.nodes))throw 0;
+      if(p.trees&&p.layouts){
+        data={zoom:+p.zoom||1,uiMode:p.uiMode||uiMode,trees:p.trees,nodes:p.nodes.map(normalizeNode),layouts:p.layouts||{}};
+      }else data=migratedFrom(p);
+      zoom=Math.max(.3,Math.min(1.8,+data.zoom||1));uiMode=data.uiMode||uiMode;currentTreeId="main";currentTab="総合";selected=firstNodeId();setHashTree("main");save();ensureLayout();render();toast("読み込みました");
+    }catch(_){alert("JSONを読み取れませんでした")}
+  };
+  r.readAsText(f);e.target.value="";
+}
+
+function applyUIMode(){
+  const isDesktop=uiMode==="desktop";
+  const isMobile=uiMode==="mobile";
+
+  document.body.dataset.uiMode=uiMode;
+  document.body.classList.toggle("desktopMode",isDesktop);
+  document.body.classList.toggle("mobileMode",isMobile);
+  document.body.classList.remove("mobileEditorOpen");
+
+  const db=document.getElementById("desktopModeBtn");
+  const mb=document.getElementById("mobileModeBtn");
+  const dr=document.getElementById("desktopModeRadio");
+  const mr=document.getElementById("mobileModeRadio");
+
+  if(dr)dr.checked=isDesktop;
+  if(mr)mr.checked=isMobile;
+
+  if(db)db.classList.toggle("active",isDesktop);
+  if(mb)mb.classList.toggle("active",isMobile);
+
+  // Force a layout refresh after the mode class changes.
+  void document.body.offsetWidth;
+  setTimeout(()=>{
+    canvasSize();
+    drawLines();
+    centerView();
+  },20);
+}
+function setUIMode(mode){
+  const next=mode==="mobile"?"mobile":"desktop";
+  uiMode=next;
+
+  // Change the visible UI first. Persistence must never block the mode switch.
+  applyUIMode();
+  render();
+  applyUIMode();
+
+  const saved=save();
+  toast(
+    (uiMode==="mobile"?"📱 スマホ表示に切り替えました":"🖥 PC表示に切り替えました")+
+    (saved?"":"（この開き方では表示設定の端末保存はできません）")
+  );
+}
+function toggleMobileEditor(force){
+  if(uiMode!=="mobile")return;
+  const open=typeof force==="boolean"?force:!document.body.classList.contains("mobileEditorOpen");
+  document.body.classList.toggle("mobileEditorOpen",open);
+  if(open){
+    const x=node(selected);
+    const title=document.getElementById("mobileEditorTitle");
+    if(title)title.textContent=x?`${x.name} を編集`:"スキル編集";
+    fillEditor();
+  }
+}
+function openMobileEditorForSelected(){
+  if(uiMode==="mobile")toggleMobileEditor(true);
+}
+
+function render(){
+  renderCrumbs();renderTabs();ensureLayout();renderTree();fillEditor();renderFuture();
+}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1900)}
+
+
+function bindModeSwitchButtons(){
+  const dr=document.getElementById("desktopModeRadio");
+  const mr=document.getElementById("mobileModeRadio");
+  if(dr)dr.addEventListener("change",()=>{if(dr.checked)setUIMode("desktop")});
+  if(mr)mr.addEventListener("change",()=>{if(mr.checked)setUIMode("mobile")});
+}
+
+document.addEventListener("click",e=>{const m=document.getElementById("ctx");if(m.classList.contains("show")&&!m.contains(e.target))hideCtx()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){hideCtx();cancelPick()}});
+window.addEventListener("resize",()=>{canvasSize();drawLines()});
+window.addEventListener("storage",e=>{
+  if(e.key!==KEY||!e.newValue)return;
+  try{
+    const fresh=JSON.parse(e.newValue);
+    fresh.nodes=(fresh.nodes||[]).map(normalizeNode);fresh.layouts=fresh.layouts||{};fresh.trees=fresh.trees||data.trees;
+    data=fresh;
+    if(data.uiMode)uiMode=data.uiMode;
+    if(!data.trees[currentTreeId])currentTreeId="main";
+    if(!node(selected))selected=firstNodeId();
+    render();
+  }catch(_){}
+});
+document.getElementById("viewport").addEventListener("wheel",handleWheel,{passive:false});
+
+bindModeSwitchButtons();
+applyUIMode();
+ensureLayout();
+render();
+setTimeout(()=>{canvasSize();drawLines();centerView()},0);
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
