@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
-<title>SkillTree v6.5</title>
+<title>SkillTree v6.6</title>
 <style>
 :root{
   --stone:#b9b3a8;--stoneD:#666057;--panel:#1c2127;--panel2:#11161b;--txt:#f4f4f4;
@@ -226,6 +226,84 @@ body.mobileMode .row>*,#mobileModeRadio:checked ~ .app .row>*{min-width:120px}
 body.mobileMode .card,#mobileModeRadio:checked ~ .app .card{margin-bottom:8px}
 body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~ .app .growthBox,#mobileModeRadio:checked ~ .app .unlockBox{padding:7px}
 
+.editorHeaderCard h3{margin-bottom:7px}
+.editorHelp>summary{cursor:pointer;color:#bfc6cd;font-size:11px;font-weight:800;user-select:none}
+.editorHelp[open]>summary{color:#f2d76f}
+
+/* v6.6: compact editor accordions */
+.editorAccordion{
+  border:2px solid #59616a;
+  background:#11161b;
+  margin:8px 0;
+}
+.editorAccordion>summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  padding:8px 10px;
+  cursor:pointer;
+  user-select:none;
+  font-weight:900;
+  color:#f2d76f;
+  background:linear-gradient(#252b31,#1a1f24);
+  border-bottom:0 solid #4f575f;
+}
+.editorAccordion>summary::-webkit-details-marker{display:none}
+.editorAccordion>summary::before{
+  content:"▶";
+  width:14px;
+  flex:0 0 14px;
+  font-size:11px;
+  color:#bfc6cd;
+  transition:transform .12s ease;
+}
+.editorAccordion[open]>summary::before{transform:rotate(90deg)}
+.editorAccordion[open]>summary{border-bottom-width:2px}
+.accordionTitle{white-space:nowrap}
+.accordionMeta{
+  margin-left:auto;
+  min-width:0;
+  color:#c6ccd2;
+  font-size:11px;
+  font-weight:700;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:right;
+}
+.accordionBody{padding:9px}
+.editorAccordion .unlockBox,.editorAccordion .growthBox{
+  margin:0;
+  border:0;
+  background:transparent;
+  padding:0;
+}
+.editorAccordion .growthRule{margin-top:0}
+.editorStickyActions{
+  position:sticky;
+  bottom:-10px;
+  z-index:15;
+  margin:10px -10px -10px;
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:linear-gradient(#262c32f5,#11161bfa);
+  border-top:3px solid #655f56;
+  box-shadow:0 -6px 14px #0007;
+}
+.editorStickyActions .btn.primary{width:100%;font-size:15px}
+body.mobileMode .editorStickyActions,
+#mobileModeRadio:checked ~ .app .editorStickyActions{
+  position:static;
+  margin:10px 0 0;
+  padding:0;
+  background:transparent;
+  border-top:0;
+  box-shadow:none;
+}
+body.mobileMode .editorAccordion>summary,
+#mobileModeRadio:checked ~ .app .editorAccordion>summary{min-height:40px;padding:7px 8px}
+
 @media(max-width:880px){
   body:not(.desktopMode):not(.mobileMode) .drawerToggle{top:150px}
   body:not(.desktopMode):not(.mobileMode) .app{grid-template-columns:1fr}
@@ -239,7 +317,7 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
 <input class="uiModeRadio" type="radio" name="uiModeNative" id="mobileModeRadio" value="mobile">
 <div class="app">
 <header class="top">
-  <div class="title">SkillTree v6.5</div>
+  <div class="title">SkillTree v6.6</div>
   <div class="modeSwitch">
     <label class="btn sm modeChoice" id="desktopModeBtn" for="desktopModeRadio">🖥 PC</label>
     <label class="btn sm modeChoice" id="mobileModeBtn" for="mobileModeRadio">📱 スマホ</label>
@@ -279,9 +357,12 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
 </section>
 
 <aside class="right">
-  <div class="card">
+  <div class="card editorHeaderCard">
     <h3 id="editTitle">スキル編集</h3>
-    <div class="muted">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。v6.5ではスマホのジャンル欄を横1列に圧縮し、ノード配置を通常時は固定するようにしました。</div>
+    <details class="editorHelp">
+      <summary>ℹ️ 操作メモ・更新履歴</summary>
+      <div class="muted" style="margin-top:7px">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。v6.5ではスマホのジャンル欄を横1列に圧縮し、ノード配置を通常時は固定するようにしました。v6.6ではPC編集欄の解放条件・XP獲得・レベルアップ・進捗を折りたたみ式にし、保存ボタンを下部に固定しました。</div>
+    </details>
   </div>
 
   <div class="card">
@@ -299,8 +380,9 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
     <div class="field"><label>スキル内容</label><textarea id="desc"></textarea></div>
     <div class="field"><label>レベルアップ条件</label><textarea id="cond"></textarea></div>
 
-    <div class="unlockBox">
-      <h3>🔓 新スキルの解放条件</h3>
+    <details class="editorAccordion" id="unlockAccordion">
+      <summary><span class="accordionTitle">🔓 新スキルの解放条件</span><span class="accordionMeta" id="unlockAccordionMeta">追加条件なし</span></summary>
+      <div class="accordionBody unlockBox">
       <div class="muted">親スキルの習得は常に必須です。ここでは追加条件を設定します。「増加」系は条件追加時の値を0地点として数えます。</div>
       <div class="field" style="margin-top:7px"><label>複数条件の判定</label>
         <select id="unlockMode" onchange="saveUnlockModeOnly()">
@@ -325,12 +407,13 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
         <div class="muted" id="unlockBuilderHint"></div>
         <button class="btn primary sm" style="margin-top:7px" onclick="addUnlockCondition()">＋ 解放条件を追加</button>
       </div>
-    </div>
+      </div>
+    </details>
 
-    <div class="growthBox">
-      <h3>⚙️ 条件による成長</h3>
-      <div class="muted">解放条件と同じ条件を使って、このスキルにXPやLvを加算できます。条件を満たしたら「受け取る」を押します。受取後は、必要なら基準を現在値に更新して同じルールを再利用できます。</div>
-
+    <details class="editorAccordion" id="xpAccordion">
+      <summary><span class="accordionTitle">✨ XP獲得ルール</span><span class="accordionMeta" id="xpAccordionMeta">OFF</span></summary>
+      <div class="accordionBody growthBox">
+        <div class="muted" style="margin-bottom:7px">解放条件と同じ条件を使って、このスキルへXPを加算します。</div>
       <div class="growthRule" id="xpGrowthRule">
         <div class="growthRuleTitle">
           <span>✨ XP獲得ルール</span>
@@ -379,7 +462,13 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
           <button class="btn" id="xpResetBtn" onclick="resetGrowthRule('xp')">基準を今に更新して再利用</button>
         </div>
       </div>
+      </div>
+    </details>
 
+    <details class="editorAccordion" id="levelAccordion">
+      <summary><span class="accordionTitle">⬆️ レベルアップルール</span><span class="accordionMeta" id="levelAccordionMeta">OFF</span></summary>
+      <div class="accordionBody growthBox">
+        <div class="muted" style="margin-bottom:7px">条件達成時に、このスキルのLvを上げるルールを設定します。</div>
       <div class="growthRule" id="levelGrowthRule">
         <div class="growthRuleTitle">
           <span>⬆️ レベルアップルール</span>
@@ -422,10 +511,12 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
           <button class="btn" id="levelResetBtn" onclick="resetGrowthRule('level')">基準を今に更新して再利用</button>
         </div>
       </div>
-    </div>
+      </div>
+    </details>
 
-    <div class="card" style="margin:7px 0;background:#15191d">
-      <h3 style="font-size:15px">次のLvまで</h3>
+    <details class="editorAccordion" id="progressAccordion">
+      <summary><span class="accordionTitle">📊 経験値・進捗</span><span class="accordionMeta" id="progressAccordionMeta">0 / 100 XP</span></summary>
+      <div class="accordionBody">
       <div class="row">
         <div class="field"><label>現在</label><input id="cur" type="number" min="0" oninput="previewProgress()"></div>
         <div class="field"><label>目標</label><input id="goal" type="number" min="1" oninput="previewProgress()"></div>
@@ -443,7 +534,8 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
         <button class="btn sm" onclick="bump(10)">+10</button>
         <button class="btn sm" onclick="bump(-1)">-1</button>
       </div>
-    </div>
+      </div>
+    </details>
 
     <div class="row">
       <div class="field"><label>X（この画面だけ微調整）</label><input id="x" type="number"></div>
@@ -451,14 +543,16 @@ body.mobileMode .growthBox,body.mobileMode .unlockBox,#mobileModeRadio:checked ~
     </div>
 
     <div class="row">
-      <button class="btn primary" onclick="saveSelected()">保存</button>
       <button class="btn" onclick="startPickChange()">親をクリックで変更</button>
+      <button class="btn" onclick="addChildSelected()">このスキルから分岐</button>
     </div>
     <div class="row" style="margin-top:6px">
-      <button class="btn" onclick="addChildSelected()">このスキルから分岐</button>
       <button class="btn" onclick="openOrCreateDetail()">詳細ツリー</button>
       <button class="btn danger" id="deleteDetailBtn" onclick="deleteSelectedDetailTree()">詳細ツリー削除</button>
       <button class="btn danger" onclick="deleteSelected()">削除</button>
+    </div>
+    <div class="editorStickyActions">
+      <button class="btn primary" onclick="saveSelected()">💾 このスキルを保存</button>
     </div>
   </div>
 
@@ -1036,6 +1130,7 @@ function renderUnlockConditions(){
   sum.className="unlockSummary "+(status.ready?"ready":"");
   sum.textContent=`追加条件：${status.metCount} / ${status.total} 達成（${x.unlockMode==="any"?"どれか1つ":"すべて"}）`;
   list.appendChild(sum);
+  updateEditorAccordionSummaries();
 }
 function addUnlockCondition(){
   const x=node(selected);if(!x)return;
@@ -1382,6 +1477,33 @@ function renderGrowthRule(kind){
 function renderGrowthRules(){
   renderGrowthRule("xp");
   renderGrowthRule("level");
+  updateEditorAccordionSummaries();
+}
+
+function updateEditorAccordionSummaries(){
+  const x=node(selected);if(!x)return;
+  const unlockMeta=document.getElementById("unlockAccordionMeta");
+  if(unlockMeta){
+    const n=(x.unlockConditions||[]).length;
+    unlockMeta.textContent=n?`${n}件・${x.unlockMode==="any"?"OR":"AND"}`:"追加条件なし";
+  }
+  const xr=growthRule(x,"xp"),lr=growthRule(x,"level");
+  const xpMeta=document.getElementById("xpAccordionMeta");
+  if(xpMeta){
+    const n=(xr.conditions||[]).length;
+    xpMeta.textContent=xr.enabled?`${n}件・+${xr.amount} XP${xr.repeatMode==="repeat"?"・繰返し":""}`:"OFF";
+  }
+  const levelMeta=document.getElementById("levelAccordionMeta");
+  if(levelMeta){
+    const n=(lr.conditions||[]).length;
+    levelMeta.textContent=lr.enabled?`${n}件・+${lr.amount} Lv`:"OFF";
+  }
+  const progressMeta=document.getElementById("progressAccordionMeta");
+  if(progressMeta){
+    const curEl=document.getElementById("cur"),goalEl=document.getElementById("goal"),unitEl=document.getElementById("unit");
+    const c=Math.max(0,+(curEl?.value??x.cur)||0),g=Math.max(1,+(goalEl?.value??x.goal)||100),u=(unitEl?.value||x.unit||"XP").trim()||"XP";
+    progressMeta.textContent=isMaxed(x)?`MAX・Lv${x.level}`:`${c} / ${g} ${u}`;
+  }
 }
 
 function fillEditor(){
@@ -1406,6 +1528,7 @@ function fillEditor(){
   previewProgress();
   renderUnlockConditions();
   renderGrowthRules();
+  updateEditorAccordionSummaries();
 }
 function previewProgress(){
   const acq=document.getElementById("acquired").value==="true";
@@ -1418,6 +1541,7 @@ function previewProgress(){
   document.getElementById("editorFill").style.width=p+"%";
   document.getElementById("editorProgressText").textContent=!acq?"未取得":maxed?`Lv${lv} / 上限 ${max}`:`${c} / ${g} ${u}`;
   document.getElementById("editorRemain").textContent=!acq?"前提スキルを習得すると進捗を開始できます":maxed?"レベル上限に到達しています":`次のLvまであと ${Math.max(0,g-c)} ${u}`;
+  updateEditorAccordionSummaries();
 }
 function descendants(id,tid=currentTreeId){
   const out=[];(function walk(p){kids(p,tid).forEach(c=>{out.push(c.id);walk(c.id)})})(id);return out;
