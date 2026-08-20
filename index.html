@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
-<title>SkillTree v6.6</title>
+<title>SkillTree v6.7</title>
 <style>
 :root{
   --stone:#b9b3a8;--stoneD:#666057;--panel:#1c2127;--panel2:#11161b;--txt:#f4f4f4;
@@ -304,6 +304,25 @@ body.mobileMode .editorStickyActions,
 body.mobileMode .editorAccordion>summary,
 #mobileModeRadio:checked ~ .app .editorAccordion>summary{min-height:40px;padding:7px 8px}
 
+
+/* v6.7: mobile parent picker + parked skill inbox */
+.parentPicker{display:none;position:fixed;inset:0;z-index:140;background:#0009;align-items:flex-end;justify-content:center}
+.parentPicker.show{display:flex}
+.parentPickerPanel{width:min(720px,100%);max-height:76vh;display:flex;flex-direction:column;background:#171b20;border:4px solid #7a725f;border-bottom:0;box-shadow:0 -8px 28px #000a;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
+.parentPickerHead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.parentPickerHead strong{flex:1;color:#f2d76f;font-size:17px}
+.parentPickerSearch{width:100%;background:#0c1014;color:#fff;border:2px solid #626971;padding:9px;margin-bottom:8px}
+.parentPickerList{overflow:auto;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+.parentPickItem{display:flex;gap:9px;align-items:center;text-align:left;width:100%;border:2px solid #555d65;background:#23282e;color:#fff;padding:9px;touch-action:manipulation}
+.parentPickItem:active{background:#35404a}
+.parentPickIcon{font-size:22px;width:30px;text-align:center}
+.parentPickMain{flex:1;min-width:0}
+.parentPickName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.parentPickMeta{display:block;font-size:11px;color:#c3c9cf;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.parentPickEmpty{padding:20px;text-align:center;color:#aaa}
+.parkedBadge{display:inline-block;padding:1px 5px;border:1px solid #b58b45;background:#4b3b1e;color:#ffe09a;font-size:10px;margin-left:4px}
+body.mobileMode .parentPickerPanel,#mobileModeRadio:checked ~ .parentPicker .parentPickerPanel{max-height:70vh;border-radius:12px 12px 0 0}
+
 @media(max-width:880px){
   body:not(.desktopMode):not(.mobileMode) .drawerToggle{top:150px}
   body:not(.desktopMode):not(.mobileMode) .app{grid-template-columns:1fr}
@@ -317,7 +336,7 @@ body.mobileMode .editorAccordion>summary,
 <input class="uiModeRadio" type="radio" name="uiModeNative" id="mobileModeRadio" value="mobile">
 <div class="app">
 <header class="top">
-  <div class="title">SkillTree v6.6</div>
+  <div class="title">SkillTree v6.7</div>
   <div class="modeSwitch">
     <label class="btn sm modeChoice" id="desktopModeBtn" for="desktopModeRadio">🖥 PC</label>
     <label class="btn sm modeChoice" id="mobileModeBtn" for="mobileModeRadio">📱 スマホ</label>
@@ -361,7 +380,7 @@ body.mobileMode .editorAccordion>summary,
     <h3 id="editTitle">スキル編集</h3>
     <details class="editorHelp">
       <summary>ℹ️ 操作メモ・更新履歴</summary>
-      <div class="muted" style="margin-top:7px">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。v6.5ではスマホのジャンル欄を横1列に圧縮し、ノード配置を通常時は固定するようにしました。v6.6ではPC編集欄の解放条件・XP獲得・レベルアップ・進捗を折りたたみ式にし、保存ボタンを下部に固定しました。</div>
+      <div class="muted" style="margin-top:7px">ジャンル別表示は、全体とは別の配置として自動整列されます。そこでドラッグした配置も、そのジャンル画面だけに保存されます。v5.2では階層間の縦幅を広げ、分岐線の縦の「茎」も長めに調整しています。v5.3では詳細ツリー自体を安全に削除できるようにしました。v5.4ではアプリ本体と現在のセーブを1つのHTMLファイルとして保存できます。v5.5では複数の解放条件と、その条件進捗を追加しました。v5.6では同じ条件システムをXP獲得とレベルアップにも使えるようにしました。v5.7ではPC表示とスマホ表示を切り替えられるようにしました。v5.8ではレベルアップ条件に「当スキルの経験値MAX」を追加しました。v5.9ではXP獲得条件に「指定スキル配下だけの合計Lv上昇」を追加しました。v6.0ではXP報酬を「○上昇するごとに繰り返し獲得」できるようにしました。v6.1ではPC／スマホ表示の選択状態を分かりやすくしました。v6.2ではiPhone等で保存領域が制限されても表示切替が止まらないようにしました。v6.3ではPC／スマホ切替をブラウザ標準のラジオ選択＋CSSでも動く方式に変更しました。v6.4はSafari／PWA向けWeb版です。v6.5ではスマホのジャンル欄を横1列に圧縮し、ノード配置を通常時は固定するようにしました。v6.6ではPC編集欄の解放条件・XP獲得・レベルアップ・進捗を折りたたみ式にし、保存ボタンを下部に固定しました。v6.7ではスマホの親選択を検索式のボトムシートに変更し、親未設定の保留スキルを未解放一覧に置けるようにしました。</div>
     </details>
   </div>
 
@@ -572,14 +591,25 @@ body.mobileMode .editorAccordion>summary,
 <button class="btn drawerToggle" onclick="toggleDrawer()">☰</button>
 <aside class="drawer" id="drawer">
   <h3>未解放スキル一覧</h3>
-  <div class="muted" style="margin-bottom:8px">今開いているツリーだけを対象に、まだ前提が満たされていないスキルを収納します。</div>
+  <div class="muted" style="margin-bottom:8px">今開いているツリーだけを対象に、まだ前提が満たされていないスキルと、親未設定の保留スキルを収納します。</div>
   <input class="search" id="search" placeholder="🔍 スキル名・内容・カテゴリを検索" oninput="renderFuture()">
   <div style="display:flex;gap:5px;margin-bottom:8px">
     <button class="btn primary sm" onclick="startPickNew()">＋ 親を選んで追加</button>
-    <button class="btn sm" onclick="addRootFuture()">＋ 親なし追加</button>
+    <button class="btn sm" onclick="addRootFuture()">＋ 保留スキル</button>
   </div>
   <div id="futureList"></div>
 </aside>
+
+<div class="parentPicker" id="parentPicker" onclick="if(event.target===this)closeParentPicker()">
+  <div class="parentPickerPanel">
+    <div class="parentPickerHead">
+      <strong id="parentPickerTitle">親スキルを選択</strong>
+      <button class="btn sm" onclick="closeParentPicker()">閉じる</button>
+    </div>
+    <input class="parentPickerSearch" id="parentPickerSearch" placeholder="🔍 親にするスキルを検索" oninput="renderParentPicker()">
+    <div class="parentPickerList" id="parentPickerList"></div>
+  </div>
+</div>
 
 <div class="ctx" id="ctx"></div>
 <div class="toast" id="toast"></div>
@@ -649,7 +679,7 @@ function normalizeNode(x){
     id:x.id||uid(),treeId:x.treeId||"main",name:x.name||"無名スキル",icon:(x.icon&&x.icon!=="🔒")?x.icon:"⭐",
     category:x.category||"その他",level:Math.max(1,+x.level||1),maxLevel:Math.max(1,+x.maxLevel||10),
     acquired:typeof x.acquired==="boolean"?x.acquired:x.status!=="locked",
-    description:x.description||"",condition:x.condition||"",parentId:x.parentId||"",
+    description:x.description||"",condition:x.condition||"",parentId:x.parentId||"",parked:!!x.parked,
     cur:+(x.cur??x.progressCurrent)||0,goal:Math.max(1,+(x.goal??x.progressGoal)||100),unit:x.unit||x.progressUnit||"XP",
     detailTreeId:x.detailTreeId||null,
     unlockMode:x.unlockMode==="any"?"any":"all",
@@ -759,6 +789,7 @@ function categories(){
   return ["総合",...new Set(own.map(x=>x.category).filter(c=>c&&c!=="総合"))];
 }
 function isTreeVisible(x){
+  if(x.parked)return false;
   if(x.acquired)return true;
   if(!x.parentId)return true;
   return !!parent(x)?.acquired;
@@ -1513,7 +1544,7 @@ function fillEditor(){
   const mobileTitle=document.getElementById("mobileEditorTitle");
   if(mobileTitle)mobileTitle.textContent=x.name+" を編集";
   for(const [id,v] of [["name",x.name],["icon",x.icon],["category",x.category],["level",x.level],["maxLevel",x.maxLevel],["acquired",String(!!x.acquired)],["desc",x.description],["cond",x.condition],["cur",x.cur],["goal",x.goal],["unit",x.unit],["x",p.x],["y",p.y]])document.getElementById(id).value=v??"";
-  document.getElementById("parentPill").textContent="親："+(parent(x)?.name||"なし");
+  document.getElementById("parentPill").textContent=x.parked?"親：未設定（保留）":"親："+(parent(x)?.name||"なし");
   document.getElementById("childPill").textContent="分岐："+kids(x.id).length;
   document.getElementById("treePill").textContent="ツリー："+(tree().name||"全体");
   document.getElementById("cats").innerHTML=categories().filter(c=>c!=="総合").map(c=>`<option value="${attr(c)}">`).join("");
@@ -1562,6 +1593,7 @@ function saveSelected(){
   x.unit=document.getElementById("unit").value.trim()||"XP";
   const nx=Math.max(0,+document.getElementById("x").value||0),ny=Math.max(0,+document.getElementById("y").value||0);
   const oldp=pos(x.id);if(nx!==oldp.x||ny!==oldp.y)setPos(x.id,nx,ny,true);
+  if(x.parentId)x.parked=false;
   if(oldAcq&&!x.acquired){
     const d=descendants(x.id).filter(i=>node(i)?.acquired);
     if(d.length){
@@ -1589,18 +1621,69 @@ function toggleAcquire(id){
   }
   save();hideCtx();ensureLayout();render();
 }
-function newSkillBase(parentId){
+function newSkillBase(parentId,parked=false){
   const p=node(parentId);
-  return {id:uid(),treeId:currentTreeId,name:"新しいスキル",icon:"⭐",category:(p?.category&&p.category!=="総合")?p.category:"その他",level:1,maxLevel:10,acquired:false,description:"",condition:"",parentId:parentId||"",cur:0,goal:100,unit:"XP",detailTreeId:null,unlockMode:"all",unlockConditions:[],growthRules:{xp:normalizeGrowthRule(null,"xp"),level:normalizeGrowthRule(null,"level")}};
+  return {id:uid(),treeId:currentTreeId,name:"新しいスキル",icon:"⭐",category:(p?.category&&p.category!=="総合")?p.category:"その他",level:1,maxLevel:10,acquired:false,description:"",condition:"",parentId:parentId||"",parked:!!parked,cur:0,goal:100,unit:"XP",detailTreeId:null,unlockMode:"all",unlockConditions:[],growthRules:{xp:normalizeGrowthRule(null,"xp"),level:normalizeGrowthRule(null,"level")}};
 }
 function makeChild(pid){
   const p=node(pid);if(!p)return;
-  const x=newSkillBase(pid);data.nodes.push(x);selected=x.id;
-  save();autoArrange(false,false);render();toast("分岐スキルを追加しました");
+  const x=newSkillBase(pid,false);data.nodes.push(x);selected=x.id;
+  save();autoArrange(false,false);render();
+  if(uiMode==="mobile")openMobileEditorForSelected();
+  toast("分岐スキルを追加しました");
 }
 function addChildSelected(){if(!node(selected))return toast("親にするスキルを選択してください");makeChild(selected)}
-function startPickNew(){pick={type:"new"};document.getElementById("banner").classList.add("show");renderTree()}
-function startPickChange(){if(!selected)return;pick={type:"change",id:selected};document.getElementById("banner").classList.add("show");renderTree()}
+
+let parentPickerMode=null;
+function openParentPicker(type,id=null){
+  parentPickerMode={type,id};
+  const title=document.getElementById("parentPickerTitle");
+  if(title)title.textContent=type==="change"?"新しい親スキルを選択":"親スキルを選択して追加";
+  const q=document.getElementById("parentPickerSearch");if(q)q.value="";
+  document.getElementById("parentPicker").classList.add("show");
+  renderParentPicker();
+}
+function closeParentPicker(){
+  parentPickerMode=null;
+  document.getElementById("parentPicker")?.classList.remove("show");
+}
+function renderParentPicker(){
+  const box=document.getElementById("parentPickerList");if(!box||!parentPickerMode)return;
+  const q=(document.getElementById("parentPickerSearch")?.value||"").trim().toLowerCase();
+  const changing=parentPickerMode.type==="change"?node(parentPickerMode.id):null;
+  const bad=new Set(changing?[changing.id,...allDescendants(changing.id).map(x=>x.id)]:[]);
+  let a=treeAllNodes().filter(x=>!bad.has(x.id));
+  if(q)a=a.filter(x=>[x.name,x.category,x.description].join(" ").toLowerCase().includes(q));
+  a.sort((a,b)=>(Number(b.acquired)-Number(a.acquired))||(Number(a.parked)-Number(b.parked))||a.name.localeCompare(b.name,"ja"));
+  if(!a.length){box.innerHTML='<div class="parentPickEmpty">候補がありません</div>';return}
+  box.innerHTML="";
+  a.forEach(x=>{
+    const b=document.createElement("button");b.className="parentPickItem";
+    b.innerHTML=`<span class="parentPickIcon">${esc(x.acquired?(x.icon||"⭐"):"🔒")}</span><span class="parentPickMain"><span class="parentPickName">${esc(x.name)}${x.parked?'<span class="parkedBadge">保留</span>':""}</span><span class="parentPickMeta">${esc(x.category)} ・ ${x.acquired?`Lv${x.level}`:"未取得"} ・ 親：${esc(parent(x)?.name||"なし")}</span></span>`;
+    b.onclick=()=>chooseParentFromPicker(x.id);box.appendChild(b);
+  });
+}
+function chooseParentFromPicker(pid){
+  const m=parentPickerMode;if(!m)return;closeParentPicker();
+  if(m.type==="new")return makeChild(pid);
+  const x=node(m.id);if(!x)return;
+  if(pid===x.id)return toast("自分自身は親にできません");
+  if(allDescendants(x.id).some(v=>v.id===pid))return toast("子孫は親にできません");
+  if(nodeTreeId(x)!==currentTreeId)return toast("この詳細ツリーの頭スキル自体は親変更できません");
+  x.parentId=pid;x.parked=false;delete layout()[x.id];
+  save();autoArrange(false,false);render();
+  if(uiMode==="mobile")openMobileEditorForSelected();
+  toast("親スキルを設定しました");
+}
+function startPickNew(){
+  if(uiMode==="mobile")return openParentPicker("new");
+  pick={type:"new"};document.getElementById("banner").classList.add("show");renderTree();
+}
+function startPickChange(){
+  if(!selected)return;
+  if(uiMode==="mobile")return openParentPicker("change",selected);
+  pick={type:"change",id:selected};document.getElementById("banner").classList.add("show");renderTree();
+}
 function finishPick(pid){
   const m=pick;pick=null;document.getElementById("banner").classList.remove("show");
   if(m.type==="new")makeChild(pid);
@@ -1609,14 +1692,16 @@ function finishPick(pid){
     if(descendants(m.id).includes(pid))return toast("子孫は親にできません");
     const x=node(m.id);
     if(nodeTreeId(x)!==currentTreeId)return toast("この詳細ツリーの頭スキル自体は親変更できません");
-    x.parentId=pid;
+    x.parentId=pid;x.parked=false;
     delete layout()[x.id];
     save();autoArrange(false,false);render();toast("親スキルを変更しました");
   }
 }
-function cancelPick(){pick=null;document.getElementById("banner").classList.remove("show");renderTree()}
+function cancelPick(){pick=null;document.getElementById("banner").classList.remove("show");closeParentPicker();renderTree()}
 function addRootFuture(){
-  const x=newSkillBase("");data.nodes.push(x);selected=x.id;save();autoArrange(false,false);render();
+  const x=newSkillBase("",true);data.nodes.push(x);selected=x.id;save();render();
+  if(uiMode==="mobile"){document.getElementById("drawer")?.classList.remove("open");openMobileEditorForSelected()}
+  toast("保留スキルを未解放一覧に追加しました");
 }
 function openOrCreateDetail(){const x=node(selected);if(!x)return;if(x.detailTreeId)openTree(x.detailTreeId);else createDetailTree(x.id)}
 function createDetailTree(skillId){
@@ -1752,8 +1837,10 @@ function renderFuture(){
   a.sort((a,b)=>route(a).length-route(b).length||a.name.localeCompare(b.name,"ja")).forEach(x=>{
     const d=document.createElement("div");d.className="future";
     const ust=unlockStatus(x);
-    d.innerHTML=`<strong>🔒 ${esc(x.name)}</strong><div class="futureMeta">カテゴリ：${esc(x.category)} / Lv${esc(x.level)}<br>前提：${esc(parent(x)?.name||"なし")}<br>追加条件：${ust.metCount}/${ust.total} 達成<br>経路：${esc(route(x).map(v=>v.name).join(" → "))}</div><div class="futureBtns"><button class="btn sm" data-a="e">編集</button><button class="btn sm" data-a="c">この先を追加</button></div>`;
-    d.querySelector('[data-a=e]').onclick=()=>{selected=x.id;render();toast("右側で編集できます")};
+    const parked=!!x.parked;
+    d.innerHTML=`<strong>${parked?"📥":"🔒"} ${esc(x.name)}${parked?'<span class="parkedBadge">親未設定</span>':""}</strong><div class="futureMeta">カテゴリ：${esc(x.category)} / Lv${esc(x.level)}<br>${parked?"状態：保留中（親未設定）":`前提：${esc(parent(x)?.name||"なし")}<br>追加条件：${ust.metCount}/${ust.total} 達成<br>経路：${esc(route(x).map(v=>v.name).join(" → "))}`}</div><div class="futureBtns"><button class="btn sm" data-a="e">編集</button><button class="btn sm primary" data-a="p">${parked?"親を設定":"親を変更"}</button><button class="btn sm" data-a="c">この先を追加</button></div>`;
+    d.querySelector('[data-a=e]').onclick=()=>{selected=x.id;render();if(uiMode==="mobile"){document.getElementById("drawer")?.classList.remove("open");openMobileEditorForSelected()}else toast("右側で編集できます")};
+    d.querySelector('[data-a=p]').onclick=()=>{selected=x.id;if(uiMode==="mobile"){document.getElementById("drawer")?.classList.remove("open");openParentPicker("change",x.id)}else startPickChange()};
     d.querySelector('[data-a=c]').onclick=()=>makeChild(x.id);
     l.appendChild(d);
   });
@@ -1959,7 +2046,7 @@ function bindModeSwitchButtons(){
 }
 
 document.addEventListener("click",e=>{const m=document.getElementById("ctx");if(m.classList.contains("show")&&!m.contains(e.target))hideCtx()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){hideCtx();cancelPick()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){hideCtx();closeParentPicker();cancelPick()}});
 window.addEventListener("resize",()=>{canvasSize();drawLines()});
 window.addEventListener("storage",e=>{
   if(e.key!==KEY||!e.newValue)return;
